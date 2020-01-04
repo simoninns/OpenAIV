@@ -23,9 +23,6 @@
 ************************************************************************/
 
 #include "nationalmodel.h"
-#include "nationalitem.h"
-
-#include <QStringList>
 
 NationalModel::NationalModel(QObject *parent)
     : QAbstractItemModel(parent)
@@ -47,7 +44,7 @@ int NationalModel::columnCount(const QModelIndex &parent) const
     return rootItem->columnCount();
 }
 
-QVariant NationalModel::data(const QModelIndex &index, int role) const
+QVariant NationalModel::data(const QModelIndex &index, qint32 role) const
 {
     if (!index.isValid())
         return QVariant();
@@ -68,8 +65,7 @@ Qt::ItemFlags NationalModel::flags(const QModelIndex &index) const
     return QAbstractItemModel::flags(index);
 }
 
-QVariant NationalModel::headerData(int section, Qt::Orientation orientation,
-                               int role) const
+QVariant NationalModel::headerData(qint32 section, Qt::Orientation orientation, qint32 role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
         return rootItem->data(section);
@@ -77,7 +73,7 @@ QVariant NationalModel::headerData(int section, Qt::Orientation orientation,
     return QVariant();
 }
 
-QModelIndex NationalModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex NationalModel::index(qint32 row, qint32 column, const QModelIndex &parent) const
 {
     if (!hasIndex(row, column, parent))
         return QModelIndex();
@@ -123,6 +119,7 @@ int NationalModel::rowCount(const QModelIndex &parent) const
     return parentItem->childCount();
 }
 
+// Set up the data for the model
 void NationalModel::setupModelData(const QString filename, NationalItem *parent)
 {
     // Open the hierarchy file
@@ -142,7 +139,7 @@ void NationalModel::setupModelData(const QString filename, NationalItem *parent)
     fileHandle.close();
 }
 
-// Method to recursively read the model data records
+// Method to recursively read the National hierarchy records into the data-model
 void NationalModel::readModelData(NationalItem *parent, qint32 fileIndex, QFile &fileHandle)
 {
     // Get a record from the file and store the result in the column data
@@ -166,6 +163,7 @@ void NationalModel::readModelData(NationalItem *parent, qint32 fileIndex, QFile 
     return;
 }
 
+// Read a hierarchy record and store in the HierarchyRecord structure
 NationalModel::HierarchyRecord NationalModel::readRecordFromFile(QFile &fileHandle, qint32 fileIndex)
 {
     // Initialise a new record
@@ -251,7 +249,7 @@ NationalModel::HierarchyRecord NationalModel::readRecordFromFile(QFile &fileHand
 }
 
 
-// Method to read the raw file
+// Method to read byte date from the original file
 QByteArray NationalModel::readFile(qint32 filePointer, qint32 dataSize, QFile &fileHandle)
 {
     QByteArray response;

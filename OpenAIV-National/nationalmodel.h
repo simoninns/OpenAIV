@@ -32,6 +32,8 @@
 #include <QFile>
 #include <QDebug>
 
+#include "nationalitem.h"
+
 class NationalItem;
 
 class NationalModel : public QAbstractItemModel
@@ -42,11 +44,11 @@ public:
     explicit NationalModel(QObject *parent = nullptr);
     ~NationalModel();
 
-    QVariant data(const QModelIndex &index, int role) const override;
+    QVariant data(const QModelIndex &index, qint32 role) const override;
     Qt::ItemFlags flags(const QModelIndex &index) const override;
-    QVariant headerData(int section, Qt::Orientation orientation,
-                        int role = Qt::DisplayRole) const override;
-    QModelIndex index(int row, int column,
+    QVariant headerData(qint32 section, Qt::Orientation orientation,
+                        qint32 role = Qt::DisplayRole) const override;
+    QModelIndex index(qint32 row, qint32 column,
                       const QModelIndex &parent = QModelIndex()) const override;
     QModelIndex parent(const QModelIndex &index) const override;
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
