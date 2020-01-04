@@ -16,6 +16,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    Datatypes/hierarchy.cpp \
+    Datatypes/names.cpp \
     aboutdialog.cpp \
     configuration.cpp \
     logging.cpp \
@@ -26,6 +28,8 @@ SOURCES += \
     nationalnames.cpp
 
 HEADERS += \
+    Datatypes/hierarchy.h \
+    Datatypes/names.h \
     aboutdialog.h \
     configuration.h \
     logging.h \

@@ -54,6 +54,11 @@ QVariant NationalModel::data(const QModelIndex &index, qint32 role) const
 
     NationalItem *item = static_cast<NationalItem*>(index.internalPointer());
 
+    // If the first item is a Hierarchy object, return the textLabel
+    QString typeName = QString::fromUtf8(item->data(index.column()).typeName());
+    if (QString::fromUtf8(item->data(index.column()).typeName()) == "Hierarchy")
+        return item->data(index.column()).value<Hierarchy>().textLabel();
+
     return item->data(index.column());
 }
 
@@ -143,20 +148,20 @@ void NationalModel::setupModelData(const QString filename, NationalItem *parent)
 void NationalModel::readModelData(NationalItem *parent, qint32 fileIndex, QFile &fileHandle)
 {
     // Get a record from the file and store the result in the column data
-    HierarchyRecord newRecord = readRecordFromFile(fileHandle, fileIndex);
+    Hierarchy newRecord = readRecordFromFile(fileHandle, fileIndex);
     QVector<QVariant> columnData;
-    columnData.append(newRecord.textLabel);
-    columnData.append(newRecord.index);
+    columnData.resize(1);
+    columnData[0].setValue(newRecord);
 
     // Append a child item based on the hierarchy record
-    qDebug() << "Appending" << fileIndex << "- desc:" << newRecord.textLabel;
+    qDebug() << "Appending" << newRecord;
     NationalItem* child = new NationalItem(columnData, parent);
     parent->appendChild(child);
 
     // Get the children recursively (bottomFlag = true - means no more children)
-    if (!newRecord.bottomFlag) {
-        for (qint32 i = 0; i < newRecord.descPointers.size(); i++) {
-            readModelData(child, newRecord.descPointers[i], fileHandle);
+    if (!newRecord.bottomFlag()) {
+        for (qint32 i = 0; i < newRecord.descPointers().size(); i++) {
+            readModelData(child, newRecord.descPointers()[i], fileHandle);
         }
     }
 
@@ -164,41 +169,40 @@ void NationalModel::readModelData(NationalItem *parent, qint32 fileIndex, QFile 
 }
 
 // Read a hierarchy record and store in the HierarchyRecord structure
-NationalModel::HierarchyRecord NationalModel::readRecordFromFile(QFile &fileHandle, qint32 fileIndex)
+Hierarchy NationalModel::readRecordFromFile(QFile &fileHandle, qint32 fileIndex)
 {
     // Initialise a new record
-    HierarchyRecord newRecord;
-    newRecord.index = fileIndex;
-    newRecord.fatherRecord = 0;
-    newRecord.essayAddress = 0;
-    newRecord.bottomFlag = false;
-    newRecord.level = 0;
-    newRecord.textLabel.clear();
-    newRecord.descPointers.clear();
-    newRecord.crossRefs.clear();
+    qint32 index = fileIndex;
+    qint32 fatherRecord = 0;
+    qint32 essayAddress = 0;
+    bool bottomFlag = false;
+    qint32 level = 0;
+    QString textLabel;
+    QVector<qint32> descPointers;
+    QVector<qint32> crossRefs;
 
     // Read in a hierarchy record
     QByteArray hierarchyRawData = readFile(fileIndex, hierarchyRecordSize, fileHandle);
     uchar *uHierarchyRawData = reinterpret_cast<uchar*>(hierarchyRawData.data()); // Needs uchar for raw data manipulation
 
     // Interpret hierarchy record
-    newRecord.fatherRecord = uHierarchyRawData[0] + (uHierarchyRawData[1] << 8) +
+    fatherRecord = uHierarchyRawData[0] + (uHierarchyRawData[1] << 8) +
             (uHierarchyRawData[2] << 16) + (uHierarchyRawData[3] << 24);
 
     // Read essay pointer (if any, -1 if none)
-    newRecord.essayAddress = uHierarchyRawData[6] + (uHierarchyRawData[7] << 8) +
+    essayAddress = uHierarchyRawData[6] + (uHierarchyRawData[7] << 8) +
             (uHierarchyRawData[8] << 16) + (uHierarchyRawData[9] << 24);
 
     // Read bottom flag
-    if (uHierarchyRawData[42] == 0) newRecord.bottomFlag = false;
-    else if (uHierarchyRawData[42] == 128) newRecord.bottomFlag = true;
+    if (uHierarchyRawData[42] == 0) bottomFlag = false;
+    else if (uHierarchyRawData[42] == 128) bottomFlag = true;
     else {
         qDebug() << "Expected bottom flag value of 0 or 128, got" << uHierarchyRawData[42] << "defaulting to false";
-        newRecord.bottomFlag = false;
+        bottomFlag = false;
     }
 
     // Read hierarchy level
-    newRecord.level = uHierarchyRawData[43];
+    level = uHierarchyRawData[43];
 
     // Read the text
     qint32 textLength = uHierarchyRawData[10]; // how long is the label? the rest is just space padding. We can ignore it.
@@ -207,14 +211,14 @@ NationalModel::HierarchyRecord NationalModel::readRecordFromFile(QFile &fileHand
     for (qint32 i = 11; i < 11 + textLength; i++) // read from offset 11 for specified number of characters
         rawString[i - 11] = uHierarchyRawData[i]; // write into the structure starting at 0, so subtract the 11 from the counter
     rawString[textLength] = '\0'; // terminate the string
-    newRecord.textLabel = QString::fromUtf8(rawString);
+    textLabel = QString::fromUtf8(rawString);
 
     // Read the descendant pointers
     qint32 descPointer = -1;
     for (qint32 i = 44; i < 124; i += 4) {
         descPointer = uHierarchyRawData[i] + (uHierarchyRawData[i+1] << 8) + (uHierarchyRawData[i+2] << 16) + (uHierarchyRawData[i+3] << 24);
         if (descPointer == -1) break; // -1 is end of list
-        else newRecord.descPointers.append(descPointer);
+        else descPointers.append(descPointer);
     }
 
     // Read cross-references (if any)
@@ -240,12 +244,12 @@ NationalModel::HierarchyRecord NationalModel::readRecordFromFile(QFile &fileHand
             }
 
             // Append the cross-reference
-            newRecord.crossRefs.append(xrefData[0] + (xrefData[1] << 8) + (xrefData[2] << 16) + (xrefData[3] << 24));
+            crossRefs.append(xrefData[0] + (xrefData[1] << 8) + (xrefData[2] << 16) + (xrefData[3] << 24));
         }
     }
-    else newRecord.crossRefs.clear(); // There are no cross-references
+    else crossRefs.clear(); // There are no cross-references
 
-    return newRecord;
+    return Hierarchy(index, fatherRecord, essayAddress, bottomFlag, level, textLabel, descPointers, crossRefs);
 }
 
 

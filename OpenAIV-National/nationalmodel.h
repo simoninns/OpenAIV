@@ -33,6 +33,7 @@
 #include <QDebug>
 
 #include "nationalitem.h"
+#include "Datatypes/hierarchy.h"
 
 class NationalItem;
 
@@ -55,21 +56,9 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
 private:
-    // Data structures
-    struct HierarchyRecord {
-        qint32 index;
-        qint32 fatherRecord;
-        qint32 essayAddress;
-        bool bottomFlag;
-        qint32 level;
-        QString textLabel;
-        QVector<qint32> descPointers;
-        QVector<qint32> crossRefs;
-    };
-
     void setupModelData(const QString filename, NationalItem *parent);
     void readModelData(NationalItem *parent, qint32 fileIndex, QFile &fileHandle);
-    HierarchyRecord readRecordFromFile(QFile &fileHandle, qint32 fileIndex);
+    Hierarchy readRecordFromFile(QFile &fileHandle, qint32 fileIndex);
     QByteArray readFile(qint32 filePointer, qint32 dataSize, QFile &fileHandle);
 
     NationalItem *rootItem;

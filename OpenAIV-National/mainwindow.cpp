@@ -42,6 +42,7 @@ MainWindow::MainWindow(QWidget *parent)
     restoreGeometry(configuration.getMainWindowGeometry());
 
     ui->treeView->setModel(&nationalModel);
+    ui->treeView->expandAll();
 }
 
 MainWindow::~MainWindow()
