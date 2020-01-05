@@ -64,23 +64,24 @@ QString Names::typeName() const
     QString description;
 
     switch(m_type){
-    case 1: // Map type 1
-        description = "Map";
+    case 1: // GMap
+        description = "GMap";
         break;
-    case 3: // Map type 2
-        description = "Map";
+    case 3: // AMap
+        description = "AMap";
         break;
     case 4: // Data
         description = "Data";
         break;
+//    case 5: // Plan
+//        description = "Plan";
+//        break;
     case 6: // Text type 1
-        description = "Text";
-        break;
     case 7: // Text type 2
         description = "Text";
         break;
     case 8: // Picture set
-        description = "Pic";
+        description = "Pic.";
         break;
     case 9: // Surrogate walk
         description = "Walk";

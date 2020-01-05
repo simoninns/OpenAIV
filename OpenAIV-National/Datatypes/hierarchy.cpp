@@ -24,19 +24,19 @@
 
 #include "hierarchy.h"
 
-Hierarchy::Hierarchy(const qint32 &index, const qint32 &fatherRecord, const qint32 &essayAddress,
-          const bool &bottomFlag, const qint32 &level, const QString &textLabel,
-          const QVector<qint32> &descPointers, const QVector<qint32> &crossRefs)
-            : m_index(index), m_fatherRecord(fatherRecord), m_essayAddress(essayAddress),
-              m_bottomFlag(bottomFlag), m_level(level), m_textLabel(textLabel),
-              m_descPointers(descPointers), m_crossRefs(crossRefs)
+Hierarchy::Hierarchy(const qint32 &index, const qint32 &father, const qint32 &text,
+          const bool &bottomFlag, const qint32 &level, const QString &title,
+          const QVector<qint32> &hdps, const QVector<qint32> &xrefs)
+            : m_index(index), m_father(father), m_text(text),
+              m_bottomFlag(bottomFlag), m_level(level), m_title(title),
+              m_hdps(hdps), m_xrefs(xrefs)
 {
 }
 
 // Custom streaming operator (for debug)
 QDebug operator<<(QDebug dbg, const Hierarchy &hierarchy)
 {
-    const QString contents = hierarchy.textLabel() + ": index = " + QString::number(hierarchy.index());
+    const QString contents = hierarchy.title() + ": index = " + QString::number(hierarchy.index());
     if (contents.isEmpty())
         dbg.nospace().noquote() << "Hierarchy()";
     else
@@ -56,19 +56,19 @@ bool Hierarchy::bottomFlag() const
     return m_bottomFlag;
 }
 
-QString Hierarchy::textLabel() const
+QString Hierarchy::title() const
 {
-    return m_textLabel;
+    return m_title;
 }
 
-QVector<qint32> Hierarchy::descPointers() const
+QVector<qint32> Hierarchy::hdps() const
 {
-    return m_descPointers;
+    return m_hdps;
 }
 
-QVector<qint32> Hierarchy::crossRefs() const
+QVector<qint32> Hierarchy::xrefs() const
 {
-    return m_crossRefs;
+    return m_xrefs;
 }
 
 

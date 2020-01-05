@@ -70,25 +70,33 @@ Hierarchy HierarchyFile::readRecord(qint32 fileIndex)
 
     // Initialise a new record
     qint32 index = fileIndex;
-    qint32 fatherRecord = 0;
-    qint32 essayAddress = 0;
+    qint32 father = 0;
+    qint32 text = 0;
+    QString title;
     bool bottomFlag = false;
     qint32 level = 0;
-    QString textLabel;
-    QVector<qint32> descPointers;
-    QVector<qint32> crossRefs;
+    QVector<qint32> hdps;
+    QVector<qint32> xrefs;
 
     // Read in a hierarchy record
     QByteArray hierarchyRawData = readFile(fileIndex, hierarchyRecordSize);
     uchar *uHierarchyRawData = reinterpret_cast<uchar*>(hierarchyRawData.data()); // Needs uchar for raw data manipulation
 
-    // Interpret hierarchy record
-    fatherRecord = uHierarchyRawData[0] + (uHierarchyRawData[1] << 8) +
+    // Read father pointer
+    father = uHierarchyRawData[0] + (uHierarchyRawData[1] << 8) +
             (uHierarchyRawData[2] << 16) + (uHierarchyRawData[3] << 24);
 
-    // Read essay pointer (if any, -1 if none)
-    essayAddress = uHierarchyRawData[6] + (uHierarchyRawData[7] << 8) +
+    // Read text pointer
+    text = uHierarchyRawData[6] + (uHierarchyRawData[7] << 8) +
             (uHierarchyRawData[8] << 16) + (uHierarchyRawData[9] << 24);
+
+    // Read the title string
+    qint32 textLength = uHierarchyRawData[10]; // Get the length of the string
+    char rawString[32];
+    for (qint32 i = 0; i < textLength; i++)
+        rawString[i] = uHierarchyRawData[11 + i];
+    rawString[textLength] = '\0'; // terminate the string
+    title = QString::fromUtf8(rawString);
 
     // Read bottom flag
     if (uHierarchyRawData[42] == 0) bottomFlag = false;
@@ -101,29 +109,23 @@ Hierarchy HierarchyFile::readRecord(qint32 fileIndex)
     // Read hierarchy level
     level = uHierarchyRawData[43];
 
-    // Read the text
-    qint32 textLength = uHierarchyRawData[10]; // how long is the label? the rest is just space padding. We can ignore it.
-    QByteArray rawString;
-    rawString.resize(textLength + 1); // +1 for terminate character
-    for (qint32 i = 11; i < 11 + textLength; i++) // read from offset 11 for specified number of characters
-        rawString[i - 11] = uHierarchyRawData[i]; // write into the structure starting at 0, so subtract the 11 from the counter
-    rawString[textLength] = '\0'; // terminate the string
-    textLabel = QString::fromUtf8(rawString);
-
-    // Read the descendant pointers
+    // Read the Hierarchy Descendant Pointers
     qint32 descPointer = -1;
     for (qint32 i = 44; i < 124; i += 4) {
         descPointer = uHierarchyRawData[i] + (uHierarchyRawData[i+1] << 8) + (uHierarchyRawData[i+2] << 16) + (uHierarchyRawData[i+3] << 24);
-        if (descPointer == -1) break; // -1 is end of list
-        else descPointers.append(descPointer);
+        if (descPointer == -1) break; // -1 is end of list (0xFFFFFFFF)
+        else hdps.append(descPointer);
     }
+
+
+    // Note: the following is probably broken - todo - fix it.
 
     // Read cross-references (if any)
     qint32 xrefPtr = uHierarchyRawData[124] + (uHierarchyRawData[125] << 8) + (uHierarchyRawData[126] << 16) + (uHierarchyRawData[127] << 24);
 
-    // If there are any cross-references (i.e. xrefPtr isn't zero), go get them from the far-end of the file
+    // If there are any cross-references (i.e. xrefPtr isn't 0xFFFFFFFF), go get them from the far-end of the file
     // and populate the cross-reference vector.
-    if (xrefPtr != 0) {
+    if (xrefPtr != -1) {
         // How many cross-references are there? That's the 2 bytes in the file at xrefPtr
         QByteArray refRawData = readFile(xrefPtr, 2);
         uchar *uXrefRawData = reinterpret_cast<uchar*>(refRawData.data());
@@ -141,12 +143,12 @@ Hierarchy HierarchyFile::readRecord(qint32 fileIndex)
             }
 
             // Append the cross-reference
-            crossRefs.append(xrefData[0] + (xrefData[1] << 8) + (xrefData[2] << 16) + (xrefData[3] << 24));
+            xrefs.append(xrefData[0] + (xrefData[1] << 8) + (xrefData[2] << 16) + (xrefData[3] << 24));
         }
     }
-    else crossRefs.clear(); // There are no cross-references
+    else xrefs.clear(); // There are no cross-references
 
-    return Hierarchy(index, fatherRecord, essayAddress, bottomFlag, level, textLabel, descPointers, crossRefs);
+    return Hierarchy(index, father, text, bottomFlag, level, title, hdps, xrefs);
 }
 
 

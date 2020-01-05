@@ -29,6 +29,8 @@
 #include <QVector>
 #include <QDebug>
 
+// See: https://github.com/simoninns/OpenAIV/wiki/National-Hierarchy-file
+
 class Hierarchy
 {
 public:
@@ -37,25 +39,25 @@ public:
     Hierarchy(const Hierarchy &) = default;
     Hierarchy &operator=(const Hierarchy &) = default;
 
-    Hierarchy(const qint32 &index, const qint32 &fatherRecord, const qint32 &essayAddress,
-              const bool &bottomFlag, const qint32 &level, const QString &textLabel,
-              const QVector<qint32> &descPointers, const QVector<qint32> &crossRefs);
+    Hierarchy(const qint32 &index, const qint32 &father, const qint32 &text,
+              const bool &bottomFlag, const qint32 &level, const QString &title,
+              const QVector<qint32> &hdps, const QVector<qint32> &xrefs);
 
     qint32 index() const;
     bool bottomFlag() const;
-    QString textLabel() const;
-    QVector<qint32> descPointers() const;
-    QVector<qint32> crossRefs() const;
+    QString title() const;
+    QVector<qint32> hdps() const;
+    QVector<qint32> xrefs() const;
 
 private:
     qint32 m_index;
-    qint32 m_fatherRecord;
-    qint32 m_essayAddress;
+    qint32 m_father;
+    qint32 m_text;
     bool m_bottomFlag;
     qint32 m_level;
-    QString m_textLabel;
-    QVector<qint32> m_descPointers;
-    QVector<qint32> m_crossRefs;
+    QString m_title;
+    QVector<qint32> m_hdps;
+    QVector<qint32> m_xrefs;
 };
 
 // Custom streaming operator

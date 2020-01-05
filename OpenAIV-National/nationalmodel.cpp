@@ -58,12 +58,15 @@ QVariant NationalModel::data(const QModelIndex &index, qint32 role) const
 
     NationalItem *item = static_cast<NationalItem*>(index.internalPointer());
 
-    // If the column is a Hierarchy object, return the hierarchy record textLabel
-    // If the column is a Names object, return the names record label
+    // Get the column type name
     QString typeName = QString::fromUtf8(item->data(index.column()).typeName());
-    if (QString::fromUtf8(item->data(index.column()).typeName()) == "Hierarchy")
-        return item->data(index.column()).value<Hierarchy>().textLabel();
-    if (QString::fromUtf8(item->data(index.column()).typeName()) == "Names")
+
+    // If the column is a Hierarchy object, return the hierarchy record title string
+    if (typeName == "Hierarchy")
+        return item->data(index.column()).value<Hierarchy>().title();
+
+    // If the column is a Names object, return the names record label string
+    if (typeName == "Names")
         return item->data(index.column()).value<Names>().typeAndLabel();
 
     return item->data(index.column());
@@ -178,15 +181,15 @@ void NationalModel::recurseModelData(NationalItem *parent, qint32 fileIndex,
 
     // Get the hierarchy children recursively (bottomFlag = false = children available)
     if (!newHierarchyRecord.bottomFlag()) {
-        for (qint32 i = 0; i < newHierarchyRecord.descPointers().size(); i++) {
-            recurseModelData(child, newHierarchyRecord.descPointers()[i], hierarchyFile, namesFile);
+        for (qint32 i = 0; i < newHierarchyRecord.hdps().size(); i++) {
+            recurseModelData(child, newHierarchyRecord.hdps()[i], hierarchyFile, namesFile);
         }
     }
 
     // Get the names records and append as children (bottomFlag = true = names available)
     if (newHierarchyRecord.bottomFlag()) {
-        for (qint32 i = 0; i < newHierarchyRecord.descPointers().size(); i++) {
-            Names newNamesRecord = namesFile.readRecord(newHierarchyRecord.descPointers()[i]);
+        for (qint32 i = 0; i < newHierarchyRecord.hdps().size(); i++) {
+            Names newNamesRecord = namesFile.readRecord(newHierarchyRecord.hdps()[i]);
             QVector<QVariant> namesColumnData;
             namesColumnData.resize(1);
             namesColumnData[0].setValue(newNamesRecord);
