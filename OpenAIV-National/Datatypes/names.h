@@ -40,7 +40,9 @@ public:
     Names(const QString &label, const qint32 &type, const qint32 &destinationOffset);
 
     QString label() const;
+    QString typeAndLabel() const;
     qint32 type() const;
+    QString typeName() const;
     qint32 destinationOffset() const;
 
 private:

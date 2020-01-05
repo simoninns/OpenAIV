@@ -27,7 +27,12 @@
 NationalModel::NationalModel(QObject *parent)
     : QAbstractItemModel(parent)
 {
-    rootItem = new NationalItem({tr("Description"), tr("Index")});
+    // Reset statistics
+    m_totalHierarchyRecords = 0;
+    m_totalNamesRecords = 0;
+
+    // Load the model
+    rootItem = new NationalItem({tr("Description")});
     setupModelData(rootItem);
 }
 
@@ -53,13 +58,13 @@ QVariant NationalModel::data(const QModelIndex &index, qint32 role) const
 
     NationalItem *item = static_cast<NationalItem*>(index.internalPointer());
 
-    // If the first column is a Hierarchy object, return the hierarchy record textLabel
-    // If the first column is a Names object, return the names record label
+    // If the column is a Hierarchy object, return the hierarchy record textLabel
+    // If the column is a Names object, return the names record label
     QString typeName = QString::fromUtf8(item->data(index.column()).typeName());
     if (QString::fromUtf8(item->data(index.column()).typeName()) == "Hierarchy")
         return item->data(index.column()).value<Hierarchy>().textLabel();
     if (QString::fromUtf8(item->data(index.column()).typeName()) == "Names")
-        return item->data(index.column()).value<Names>().label();
+        return item->data(index.column()).value<Names>().typeAndLabel();
 
     return item->data(index.column());
 }
@@ -126,6 +131,16 @@ int NationalModel::rowCount(const QModelIndex &parent) const
     return parentItem->childCount();
 }
 
+qint32 NationalModel::totalHierarchyRecords()
+{
+    return m_totalHierarchyRecords;
+}
+
+qint32 NationalModel::totalNamesRecords()
+{
+    return m_totalNamesRecords;
+}
+
 // Set up the data for the model
 void NationalModel::setupModelData(NationalItem *parent)
 {
@@ -159,6 +174,7 @@ void NationalModel::recurseModelData(NationalItem *parent, qint32 fileIndex,
     qDebug() << "Appending" << newHierarchyRecord;
     NationalItem* child = new NationalItem(columnData, parent);
     parent->appendChild(child);
+    m_totalHierarchyRecords++;
 
     // Get the hierarchy children recursively (bottomFlag = false = children available)
     if (!newHierarchyRecord.bottomFlag()) {
@@ -177,6 +193,7 @@ void NationalModel::recurseModelData(NationalItem *parent, qint32 fileIndex,
             qDebug() << "Appending" << newNamesRecord;
             NationalItem* namesChild = new NationalItem(namesColumnData, child);
             child->appendChild(namesChild);
+            m_totalNamesRecords++;
         }
     }
 

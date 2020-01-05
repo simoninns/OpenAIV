@@ -59,11 +59,16 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
+    qint32 totalHierarchyRecords();
+    qint32 totalNamesRecords();
+
 private:
     void setupModelData(NationalItem *parent);
     void recurseModelData(NationalItem *parent, qint32 fileIndex, HierarchyFile &hierarchyFile, NamesFile &namesFile);
 
     NationalItem *rootItem;
+    qint32 m_totalHierarchyRecords;
+    qint32 m_totalNamesRecords;
 };
 
 #endif // NATIONALMODEL_H

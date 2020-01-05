@@ -32,7 +32,7 @@ Names::Names(const QString &label, const qint32 &type, const qint32 &destination
 // Custom streaming operator (for debug)
 QDebug operator<<(QDebug dbg, const Names &names)
 {
-    const QString contents = names.label() + ": type = " + QString::number(names.type());
+    const QString contents = names.label() + ": type = " + names.typeName();
     if (contents.isEmpty())
         dbg.nospace().noquote() << "Names()";
     else
@@ -47,9 +47,53 @@ QString Names::label() const
     return m_label;
 }
 
+// Returns both the type and the label as descriptive text
+QString Names::typeAndLabel() const
+{
+    return typeName() + ": " + m_label;
+}
+
 qint32 Names::type() const
 {
     return m_type;
+}
+
+// Return a descriptive name for the type
+QString Names::typeName() const
+{
+    QString description;
+
+    switch(m_type){
+    case 1: // Map type 1
+        description = "Map";
+        break;
+    case 3: // Map type 2
+        description = "Map";
+        break;
+    case 4: // Data
+        description = "Data";
+        break;
+    case 6: // Text type 1
+        description = "Text";
+        break;
+    case 7: // Text type 2
+        description = "Text";
+        break;
+    case 8: // Picture set
+        description = "Pic";
+        break;
+    case 9: // Surrogate walk
+        description = "Walk";
+        break;
+    case 10:
+        description = "Film";
+        break;
+    default:
+        description = "Unknown";
+        qDebug() << "Names type" << m_type << "is unknown!";
+    }
+
+    return description;
 }
 
 qint32 Names::destinationOffset() const
