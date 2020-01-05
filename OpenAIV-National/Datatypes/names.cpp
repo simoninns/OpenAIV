@@ -24,15 +24,15 @@
 
 #include "names.h"
 
-Names::Names(const QString &label, const qint32 &type, const qint32 &destinationOffset)
-            : m_label(label), m_type(type), m_destinationOffset(destinationOffset)
+Names::Names(const QString &itemName, const qint32 &itemType, const qint32 &itemAddress)
+            : m_itemName(itemName), m_itemType(itemType), m_itemAddress(itemAddress)
 {
 }
 
 // Custom streaming operator (for debug)
 QDebug operator<<(QDebug dbg, const Names &names)
 {
-    const QString contents = names.label() + ": type = " + names.typeName();
+    const QString contents = names.itemName() + ": type = " + names.itemTypeDescription();
     if (contents.isEmpty())
         dbg.nospace().noquote() << "Names()";
     else
@@ -42,28 +42,28 @@ QDebug operator<<(QDebug dbg, const Names &names)
 }
 
 // Get functions ------------------------------------------------------------------------------------------------------
-QString Names::label() const
+QString Names::itemName() const
 {
-    return m_label;
+    return m_itemName;
 }
 
-// Returns both the type and the label as descriptive text
-QString Names::typeAndLabel() const
+// Returns both the type and the name as descriptive text
+QString Names::itemTypeAndItemName() const
 {
-    return typeName() + ": " + m_label;
+    return itemTypeDescription() + ": " + m_itemName;
 }
 
-qint32 Names::type() const
+qint32 Names::itemType() const
 {
-    return m_type;
+    return m_itemType;
 }
 
 // Return a descriptive name for the type
-QString Names::typeName() const
+QString Names::itemTypeDescription() const
 {
     QString description;
 
-    switch(m_type){
+    switch(m_itemType){
     case 1: // GMap
         description = "GMap";
         break;
@@ -91,13 +91,13 @@ QString Names::typeName() const
         break;
     default:
         description = "Unknown";
-        qDebug() << "Names type" << m_type << "is unknown!";
+        qDebug() << "Names type" << m_itemType << "is unknown!";
     }
 
     return description;
 }
 
-qint32 Names::destinationOffset() const
+qint32 Names::itemAddress() const
 {
-    return m_destinationOffset;
+    return m_itemAddress;
 }

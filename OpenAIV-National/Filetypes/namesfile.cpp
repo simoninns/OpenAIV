@@ -70,30 +70,31 @@ Names NamesFile::readRecord(qint32 recordIndex)
 
     // Initialise a new record
     qint32 index = recordIndex * namesRecordSize;
-    QString label;
-    qint32 type;
-    qint32 destinationOffset;
+    QString itemName;
+    qint32 itemType;
+    qint32 itemAddress;
 
     // Read in a hierarchy record
     QByteArray namesRawData = readFile(index, namesRecordSize);
     uchar *uNamesRawData = reinterpret_cast<uchar*>(namesRawData.data()); // Needs uchar for raw data manipulation
 
-    // Read the text label
+    // Read the item name
     qint32 textLength = uNamesRawData[0]; // How long is the label?
-    QByteArray rawString;
-    rawString.resize(textLength + 1); // +1 for terminate character
-    for (qint32 i = 1; i <= textLength; i++)
-        rawString[i - 1] = uNamesRawData[i];
+    char rawString[32];
+    for (qint32 i = 0; i < textLength; i++) {
+        rawString[i] = uNamesRawData[i + 1];
+    }
+
     rawString[textLength] = '\0'; // terminate the string
-    label = QString::fromUtf8(rawString);
+    itemName = QString::fromUtf8(rawString);
 
-    // Read the type
-    type = uNamesRawData[31];
+    // Read the item type
+    itemType = uNamesRawData[31];
 
-    // Read the destination offset address
-    destinationOffset = uNamesRawData[32] + (uNamesRawData[33] << 8) + (uNamesRawData[34] << 16) + (uNamesRawData[35] << 24);
+    // Read the item address
+    itemAddress = uNamesRawData[32] + (uNamesRawData[33] << 8) + (uNamesRawData[34] << 16) + (uNamesRawData[35] << 24);
 
-    return Names(label, type, destinationOffset);
+    return Names(itemName, itemType, itemAddress);
 }
 
 

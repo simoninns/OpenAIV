@@ -29,6 +29,8 @@
 #include <QVector>
 #include <QDebug>
 
+// See: https://github.com/simoninns/OpenAIV/wiki/National-Names-file
+
 class Names
 {
 public:
@@ -37,18 +39,18 @@ public:
     Names(const Names &) = default;
     Names &operator=(const Names &) = default;
 
-    Names(const QString &label, const qint32 &type, const qint32 &destinationOffset);
+    Names(const QString &itemName, const qint32 &itemType, const qint32 &itemAddress);
 
-    QString label() const;
-    QString typeAndLabel() const;
-    qint32 type() const;
-    QString typeName() const;
-    qint32 destinationOffset() const;
+    QString itemName() const;
+    QString itemTypeAndItemName() const;
+    qint32 itemType() const;
+    QString itemTypeDescription() const;
+    qint32 itemAddress() const;
 
 private:
-    QString m_label;
-    qint32 m_type;
-    qint32 m_destinationOffset;
+    QString m_itemName;
+    qint32 m_itemType;
+    qint32 m_itemAddress;
 };
 
 // Custom streaming operator

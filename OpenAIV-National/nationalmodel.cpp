@@ -67,7 +67,7 @@ QVariant NationalModel::data(const QModelIndex &index, qint32 role) const
 
     // If the column is a Names object, return the names record label string
     if (typeName == "Names")
-        return item->data(index.column()).value<Names>().typeAndLabel();
+        return item->data(index.column()).value<Names>().itemTypeAndItemName();
 
     return item->data(index.column());
 }
