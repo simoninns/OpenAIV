@@ -33,6 +33,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Create dialogues
     aboutDialog = new AboutDialog(this);
+    nationalEssayDialog = new NationalEssayDialog(this);
 
     // Add a status bar to show the state of the source video file
     ui->statusbar->addWidget(&applicationStatus);
@@ -52,6 +53,7 @@ MainWindow::~MainWindow()
 {
     // Remove dialogues
     delete aboutDialog;
+    delete nationalEssayDialog;
 
     // Remove the UI
     delete ui;
@@ -78,4 +80,30 @@ void MainWindow::on_actionAbout_OpenAIV_triggered()
 {
     // Show the about dialogue
     aboutDialog->show();
+}
+
+// GUI signal handlers
+
+// Double-click on treeView
+void MainWindow::on_treeView_doubleClicked(const QModelIndex &index)
+{
+    NationalItem* clickedItem = reinterpret_cast<NationalItem *>(index.internalPointer());
+
+    // Check that the clicked item is a names record
+    QString typeName = QString::fromUtf8(clickedItem->data(0).typeName());
+    // If the column is a Names object, return the names record label string
+    if (typeName == "Names") {
+        Names namesRecord = clickedItem->data(0).value<Names>();
+
+        // If the type is currently supported by this application, pop it in a dialogue
+        if (namesRecord.itemType() == 6 || namesRecord.itemType() == 7) {
+            // Text/Essay type
+            qDebug() << "User clicked on" << namesRecord.itemName() << "with type" << namesRecord.itemTypeDescription() <<
+                        "- opening essay dialogue";
+            nationalEssayDialog->showEssay(namesRecord);
+            nationalEssayDialog->show();
+        } else {
+            qDebug() << "Type" << namesRecord.itemTypeDescription() << "is not yet supported by OpenAIV";
+        }
+    }
 }

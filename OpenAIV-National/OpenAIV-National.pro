@@ -16,8 +16,10 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    Datatypes/essay.cpp \
     Datatypes/hierarchy.cpp \
     Datatypes/names.cpp \
+    Filetypes/essayfile.cpp \
     Filetypes/hierarchyfile.cpp \
     Filetypes/namesfile.cpp \
     aboutdialog.cpp \
@@ -25,24 +27,29 @@ SOURCES += \
     logging.cpp \
     main.cpp \
     mainwindow.cpp \
+    nationalessaydialog.cpp \
     nationalitem.cpp \
     nationalmodel.cpp
 
 HEADERS += \
+    Datatypes/essay.h \
     Datatypes/hierarchy.h \
     Datatypes/names.h \
+    Filetypes/essayfile.h \
     Filetypes/hierarchyfile.h \
     Filetypes/namesfile.h \
     aboutdialog.h \
     configuration.h \
     logging.h \
     mainwindow.h \
+    nationalessaydialog.h \
     nationalitem.h \
     nationalmodel.h
 
 FORMS += \
     aboutdialog.ui \
-    mainwindow.ui
+    mainwindow.ui \
+    nationalessaydialog.ui
 
 # Rules for installation
 isEmpty(PREFIX) {

@@ -1,6 +1,6 @@
 /************************************************************************
 
-    mainwindow.h
+    namesfile.h
 
     OpenAIV - Domesday Retrieval application
     Copyright (C) 2020 Simon Inns
@@ -22,48 +22,34 @@
 
 ************************************************************************/
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef ESSAYFILE_H
+#define ESSAYFILE_H
 
-#include <QMainWindow>
-#include <QtDebug>
-#include <QLabel>
-#include <QTreeView>
+#include <QObject>
+#include <QVector>
+#include <QDebug>
+#include <QFile>
 
-#include "configuration.h"
-#include "aboutdialog.h"
-#include "nationalessaydialog.h"
-#include "nationalmodel.h"
+#include "Datatypes/essay.h"
 
-QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
-QT_END_NAMESPACE
-
-class MainWindow : public QMainWindow
+class EssayFile
 {
-    Q_OBJECT
-
 public:
-    MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    EssayFile(QString filename1, QString filename2);
+    ~EssayFile();
 
-private slots:
-    void on_actionOpen_AIV_data_triggered();
-    void on_actionExit_triggered();
-    void on_actionAbout_OpenAIV_triggered();
-
-    void on_treeView_doubleClicked(const QModelIndex &index);
+    bool isFileReady();
+    Essay readEssay(qint32 itemAddress);
 
 private:
-    Ui::MainWindow *ui;
+    QFile fileHandle1;
+    QFile fileHandle2;
+    const qint32 essayRecordSize = 36;
+    bool fileReady;
 
-    // Dialogues
-    AboutDialog* aboutDialog;
-    NationalEssayDialog* nationalEssayDialog;
-
-    // Class globals
-    QLabel applicationStatus;
-    Configuration configuration;
-    NationalModel nationalModel;
+    void open(QString filename1, QString filename2);
+    void close();
+    QByteArray readFile(qint32 filePointer, qint32 dataSize, qint32 fileNumber);
 };
-#endif // MAINWINDOW_H
+
+#endif // ESSAYFILE_H

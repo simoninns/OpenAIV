@@ -1,6 +1,6 @@
 /************************************************************************
 
-    mainwindow.h
+    essay.h
 
     OpenAIV - Domesday Retrieval application
     Copyright (C) 2020 Simon Inns
@@ -22,48 +22,41 @@
 
 ************************************************************************/
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef ESSAY_H
+#define ESSAY_H
 
-#include <QMainWindow>
-#include <QtDebug>
-#include <QLabel>
-#include <QTreeView>
+#include <QObject>
+#include <QVector>
+#include <QDebug>
 
-#include "configuration.h"
-#include "aboutdialog.h"
-#include "nationalessaydialog.h"
-#include "nationalmodel.h"
+// See: https://github.com/simoninns/OpenAIV/wiki/National-Essay-file
 
-QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
-QT_END_NAMESPACE
-
-class MainWindow : public QMainWindow
+class Essay
 {
-    Q_OBJECT
-
 public:
-    MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    Essay() = default;
+    ~Essay() = default;
+    Essay(const Essay &) = default;
+    Essay &operator=(const Essay &) = default;
 
-private slots:
-    void on_actionOpen_AIV_data_triggered();
-    void on_actionExit_triggered();
-    void on_actionAbout_OpenAIV_triggered();
+    Essay(const qint32 &numberOfPages, QString &title, QVector<QString> &pageTitles, const QVector<QString> &pages);
 
-    void on_treeView_doubleClicked(const QModelIndex &index);
+    qint32 numberOfPages() const;
+    QString title() const;
+    QVector<QString> pageTitles() const;
+    QVector<QString> pages() const;
 
 private:
-    Ui::MainWindow *ui;
-
-    // Dialogues
-    AboutDialog* aboutDialog;
-    NationalEssayDialog* nationalEssayDialog;
-
-    // Class globals
-    QLabel applicationStatus;
-    Configuration configuration;
-    NationalModel nationalModel;
+    qint32 m_numberOfPages;
+    QString m_title;
+    QVector<QString> m_pageTitles;
+    QVector<QString> m_pages;
 };
-#endif // MAINWINDOW_H
+
+// Custom streaming operator
+QDebug operator<<(QDebug dbg, const Essay &essay);
+
+// Custom meta-type declaration
+Q_DECLARE_METATYPE(Essay);
+
+#endif // ESSAY_H
