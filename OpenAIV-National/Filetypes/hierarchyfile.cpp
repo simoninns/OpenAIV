@@ -125,25 +125,26 @@ Hierarchy HierarchyFile::readRecord(qint32 fileIndex)
 
     // If there are any cross-references (i.e. xrefPtr isn't 0xFFFFFFFF), go get them from the far-end of the file
     // and populate the cross-reference vector.
-    if (xrefPtr != -1) {
+    if (xrefPtr >= 0) {
         // How many cross-references are there? That's the 2 bytes in the file at xrefPtr
         QByteArray refRawData = readFile(xrefPtr, 2);
         uchar *uXrefRawData = reinterpret_cast<uchar*>(refRawData.data());
         if (refRawData.size() != 2) {
             qFatal("Unable to read cross-reference amount from file");
         }
-        qint32 xrefCounter = uXrefRawData[0];
+        qint32 xrefCounter = uXrefRawData[0] + (uXrefRawData[1] << 8);
 
         // Now we can get that quantity of cross-reference addresses and put them in the vector
         for (int ct = 0; ct < xrefCounter; ct++) {
             // Get the address from the file at the ptr+2 (skip counter) + 4 * ct
             QByteArray xrefData = readFile((xrefPtr + 2) + (ct * 4), 4);
+            uchar *uXrefData = reinterpret_cast<uchar*>(xrefData.data());
             if (xrefData.size() != 4) {
                 qFatal("Unable to read cross-reference data from file");
             }
 
             // Append the cross-reference
-            xrefs.append(xrefData[0] + (xrefData[1] << 8) + (xrefData[2] << 16) + (xrefData[3] << 24));
+            xrefs.append(uXrefData[0] + (uXrefData[1] << 8) + (uXrefData[2] << 16) + (uXrefData[3] << 24));
         }
     }
     else xrefs.clear(); // There are no cross-references

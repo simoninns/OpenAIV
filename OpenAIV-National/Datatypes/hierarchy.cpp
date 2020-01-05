@@ -39,8 +39,17 @@ QDebug operator<<(QDebug dbg, const Hierarchy &hierarchy)
     const QString contents = hierarchy.title() + ": index = " + QString::number(hierarchy.index());
     if (contents.isEmpty())
         dbg.nospace().noquote() << "Hierarchy()";
-    else
+    else {
         dbg.nospace().noquote() << "Hierarchy(" << contents << ")";
+        QVector<qint32> references = hierarchy.xrefs();
+        if (!references.isEmpty()) {
+            dbg.nospace().noquote() << " with references ";
+            for (qint32 i = 0; i < references.size(); i++) {
+                dbg.nospace().noquote() << references[i];
+                if (i != references.size() - 1) dbg.nospace().noquote() << ", ";
+            }
+        }
+    }
 
     return dbg.maybeSpace();
 }
@@ -66,6 +75,8 @@ QVector<qint32> Hierarchy::hdps() const
     return m_hdps;
 }
 
+// Note: The cross-references are already populated.  Each reference points to an
+// heirarchical record index.
 QVector<qint32> Hierarchy::xrefs() const
 {
     return m_xrefs;
