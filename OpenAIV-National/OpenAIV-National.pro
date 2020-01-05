@@ -19,6 +19,7 @@ SOURCES += \
     Datatypes/hierarchy.cpp \
     Datatypes/names.cpp \
     Filetypes/hierarchyfile.cpp \
+    Filetypes/namesfile.cpp \
     aboutdialog.cpp \
     configuration.cpp \
     logging.cpp \
@@ -31,6 +32,7 @@ HEADERS += \
     Datatypes/hierarchy.h \
     Datatypes/names.h \
     Filetypes/hierarchyfile.h \
+    Filetypes/namesfile.h \
     aboutdialog.h \
     configuration.h \
     logging.h \

@@ -1,6 +1,6 @@
 /************************************************************************
 
-    names.cpp
+    namesfile.h
 
     OpenAIV - Domesday Retrieval application
     Copyright (C) 2020 Simon Inns
@@ -22,37 +22,33 @@
 
 ************************************************************************/
 
-#include "names.h"
+#ifndef NAMESFILE_H
+#define NAMESFILE_H
 
-Names::Names(const QString &label, const qint32 &type, const qint32 &destinationOffset)
-            : m_label(label), m_type(type), m_destinationOffset(destinationOffset)
+#include <QObject>
+#include <QVector>
+#include <QDebug>
+#include <QFile>
+
+#include "Datatypes/names.h"
+
+class NamesFile
 {
-}
+public:
+    NamesFile(QString filename);
+    ~NamesFile();
 
-// Custom streaming operator (for debug)
-QDebug operator<<(QDebug dbg, const Names &names)
-{
-    const QString contents = names.label() + ": type = " + QString::number(names.type());
-    if (contents.isEmpty())
-        dbg.nospace().noquote() << "Names()";
-    else
-        dbg.nospace().noquote() << "Names(" << contents << ")";
+    bool isFileReady();
+    Names readRecord(qint32 recordIndex);
 
-    return dbg.maybeSpace();
-}
+private:
+    QFile fileHandle;
+    const qint32 namesRecordSize = 36;
+    bool fileReady;
 
-// Get functions ------------------------------------------------------------------------------------------------------
-QString Names::label() const
-{
-    return m_label;
-}
+    void open(QString filename);
+    void close();
+    QByteArray readFile(qint32 filePointer, qint32 dataSize);
+};
 
-qint32 Names::type() const
-{
-    return m_type;
-}
-
-qint32 Names::destinationOffset() const
-{
-    return m_destinationOffset;
-}
+#endif // NAMESFILE_H

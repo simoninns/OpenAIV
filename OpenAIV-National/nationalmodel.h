@@ -33,8 +33,11 @@
 #include <QDebug>
 
 #include "nationalitem.h"
+
 #include "Datatypes/hierarchy.h"
 #include "Filetypes/hierarchyfile.h"
+#include "Datatypes/names.h"
+#include "Filetypes/namesfile.h"
 
 class NationalItem;
 
@@ -58,7 +61,7 @@ public:
 
 private:
     void setupModelData(NationalItem *parent);
-    void recurseModelData(NationalItem *parent, qint32 fileIndex, HierarchyFile &hierarchyFile);
+    void recurseModelData(NationalItem *parent, qint32 fileIndex, HierarchyFile &hierarchyFile, NamesFile &namesFile);
 
     NationalItem *rootItem;
 };

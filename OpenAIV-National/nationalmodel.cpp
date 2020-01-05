@@ -54,9 +54,12 @@ QVariant NationalModel::data(const QModelIndex &index, qint32 role) const
     NationalItem *item = static_cast<NationalItem*>(index.internalPointer());
 
     // If the first column is a Hierarchy object, return the hierarchy record textLabel
+    // If the first column is a Names object, return the names record label
     QString typeName = QString::fromUtf8(item->data(index.column()).typeName());
     if (QString::fromUtf8(item->data(index.column()).typeName()) == "Hierarchy")
         return item->data(index.column()).value<Hierarchy>().textLabel();
+    if (QString::fromUtf8(item->data(index.column()).typeName()) == "Names")
+        return item->data(index.column()).value<Names>().label();
 
     return item->data(index.column());
 }
@@ -132,12 +135,19 @@ void NationalModel::setupModelData(NationalItem *parent)
         return;
     }
 
+    NamesFile namesFile("/home/sdi/tmp/Indiv_files/National/NAMES");
+    if (!namesFile.isFileReady()) {
+        qDebug() << "Could not open names file!";
+        return;
+    }
+
     // Process the hierarchy file starting from index 0
-    recurseModelData(parent, 0, hierarchyFile);
+    recurseModelData(parent, 0, hierarchyFile, namesFile);
 }
 
 // Method to recursively read the National hierarchy records into the data-model
-void NationalModel::recurseModelData(NationalItem *parent, qint32 fileIndex, HierarchyFile &hierarchyFile)
+void NationalModel::recurseModelData(NationalItem *parent, qint32 fileIndex,
+                                     HierarchyFile &hierarchyFile, NamesFile &namesFile)
 {
     // Get a record from the file and store the result in the column data
     Hierarchy newHierarchyRecord = hierarchyFile.readRecord(fileIndex);
@@ -150,10 +160,23 @@ void NationalModel::recurseModelData(NationalItem *parent, qint32 fileIndex, Hie
     NationalItem* child = new NationalItem(columnData, parent);
     parent->appendChild(child);
 
-    // Get the children recursively (bottomFlag = true - means no more children)
+    // Get the hierarchy children recursively (bottomFlag = false = children available)
     if (!newHierarchyRecord.bottomFlag()) {
         for (qint32 i = 0; i < newHierarchyRecord.descPointers().size(); i++) {
-            recurseModelData(child, newHierarchyRecord.descPointers()[i], hierarchyFile);
+            recurseModelData(child, newHierarchyRecord.descPointers()[i], hierarchyFile, namesFile);
+        }
+    }
+
+    // Get the names records and append as children (bottomFlag = true = names available)
+    if (newHierarchyRecord.bottomFlag()) {
+        for (qint32 i = 0; i < newHierarchyRecord.descPointers().size(); i++) {
+            Names newNamesRecord = namesFile.readRecord(newHierarchyRecord.descPointers()[i]);
+            QVector<QVariant> namesColumnData;
+            namesColumnData.resize(1);
+            namesColumnData[0].setValue(newNamesRecord);
+            qDebug() << "Appending" << newNamesRecord;
+            NationalItem* namesChild = new NationalItem(namesColumnData, child);
+            child->appendChild(namesChild);
         }
     }
 

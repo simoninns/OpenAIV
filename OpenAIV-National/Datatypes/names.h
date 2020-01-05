@@ -25,11 +25,34 @@
 #ifndef NAMES_H
 #define NAMES_H
 
+#include <QObject>
+#include <QVector>
+#include <QDebug>
 
 class Names
 {
 public:
-    Names();
+    Names() = default;
+    ~Names() = default;
+    Names(const Names &) = default;
+    Names &operator=(const Names &) = default;
+
+    Names(const QString &label, const qint32 &type, const qint32 &destinationOffset);
+
+    QString label() const;
+    qint32 type() const;
+    qint32 destinationOffset() const;
+
+private:
+    QString m_label;
+    qint32 m_type;
+    qint32 m_destinationOffset;
 };
+
+// Custom streaming operator
+QDebug operator<<(QDebug dbg, const Names &names);
+
+// Custom meta-type declaration
+Q_DECLARE_METATYPE(Names);
 
 #endif // NAMES_H
