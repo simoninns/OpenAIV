@@ -18,25 +18,25 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     Datatypes/hierarchy.cpp \
     Datatypes/names.cpp \
+    Filetypes/hierarchyfile.cpp \
     aboutdialog.cpp \
     configuration.cpp \
     logging.cpp \
     main.cpp \
     mainwindow.cpp \
     nationalitem.cpp \
-    nationalmodel.cpp \
-    nationalnames.cpp
+    nationalmodel.cpp
 
 HEADERS += \
     Datatypes/hierarchy.h \
     Datatypes/names.h \
+    Filetypes/hierarchyfile.h \
     aboutdialog.h \
     configuration.h \
     logging.h \
     mainwindow.h \
     nationalitem.h \
-    nationalmodel.h \
-    nationalnames.h
+    nationalmodel.h
 
 FORMS += \
     aboutdialog.ui \

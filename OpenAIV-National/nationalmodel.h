@@ -34,6 +34,7 @@
 
 #include "nationalitem.h"
 #include "Datatypes/hierarchy.h"
+#include "Filetypes/hierarchyfile.h"
 
 class NationalItem;
 
@@ -56,13 +57,10 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
 private:
-    void setupModelData(const QString filename, NationalItem *parent);
-    void readModelData(NationalItem *parent, qint32 fileIndex, QFile &fileHandle);
-    Hierarchy readRecordFromFile(QFile &fileHandle, qint32 fileIndex);
-    QByteArray readFile(qint32 filePointer, qint32 dataSize, QFile &fileHandle);
+    void setupModelData(NationalItem *parent);
+    void recurseModelData(NationalItem *parent, qint32 fileIndex, HierarchyFile &hierarchyFile);
 
     NationalItem *rootItem;
-    const qint32 hierarchyRecordSize = 128;
 };
 
 #endif // NATIONALMODEL_H

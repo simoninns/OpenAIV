@@ -1,6 +1,6 @@
 /************************************************************************
 
-    nationalnames.cpp
+    hierarchyfile.h
 
     OpenAIV - Domesday Retrieval application
     Copyright (C) 2020 Simon Inns
@@ -22,32 +22,33 @@
 
 ************************************************************************/
 
-#include "nationalnames.h"
+#ifndef HIERARCHYFILE_H
+#define HIERARCHYFILE_H
 
-NationalNames::NationalNames()
+#include <QObject>
+#include <QVector>
+#include <QDebug>
+#include <QFile>
+
+#include "Datatypes/hierarchy.h"
+
+class HierarchyFile
 {
-    // Default to no data available
-    isDataOpen = false;
-}
+public:
+    HierarchyFile(QString filename);
+    ~HierarchyFile();
 
-NationalNames::~NationalNames()
-{
-    if (isDataOpen) close();
-}
+    bool isFileReady();
+    Hierarchy readRecord(qint32 fileIndex);
 
-bool NationalNames::open(QString filename)
-{
-    if (isDataOpen) {
-        qDebug() << "National names data is already open!";
-        return false;
-    }
+private:
+    QFile fileHandle;
+    const qint32 hierarchyRecordSize = 128;
+    bool fileReady;
 
-    qDebug() << "Opening names file from" << filename;
+    void open(QString filename);
+    void close();
+    QByteArray readFile(qint32 filePointer, qint32 dataSize);
+};
 
-    return false;
-}
-
-void NationalNames::close()
-{
-    if (!isDataOpen) return;
-}
+#endif // HIERARCHYFILE_H
