@@ -19,6 +19,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    Datatypes/dataset.cpp \
     Datatypes/essay.cpp \
     Datatypes/hierarchy.cpp \
     Datatypes/names.cpp \
@@ -26,6 +27,7 @@ SOURCES += \
     Filetypes/datafile.cpp \
     Filetypes/hierarchyfile.cpp \
     Filetypes/namesfile.cpp \
+    Overlays/datasetdialog.cpp \
     Overlays/picturesetdialog.cpp \
     Overlays/essaydialog.cpp \
     aboutdialog.cpp \
@@ -37,6 +39,7 @@ SOURCES += \
     nationalmodel.cpp
 
 HEADERS += \
+    Datatypes/dataset.h \
     Datatypes/essay.h \
     Datatypes/hierarchy.h \
     Datatypes/names.h \
@@ -44,6 +47,7 @@ HEADERS += \
     Filetypes/datafile.h \
     Filetypes/hierarchyfile.h \
     Filetypes/namesfile.h \
+    Overlays/datasetdialog.h \
     Overlays/picturesetdialog.h \
     Overlays/essaydialog.h \
     aboutdialog.h \
@@ -54,8 +58,9 @@ HEADERS += \
     nationalmodel.h
 
 FORMS += \
-    essaydialog.ui \
-    picturesetdialog.ui \
+    Overlays/datasetdialog.ui \
+    Overlays/essaydialog.ui \
+    Overlays/picturesetdialog.ui \
     aboutdialog.ui \
     mainwindow.ui
 

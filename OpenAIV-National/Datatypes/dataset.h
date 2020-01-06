@@ -1,6 +1,6 @@
 /************************************************************************
 
-    datafile.h
+    data.h
 
     OpenAIV - Domesday Retrieval application
     Copyright (C) 2020 Simon Inns
@@ -22,39 +22,42 @@
 
 ************************************************************************/
 
-#ifndef DATAFILE_H
-#define DATAFILE_H
+#ifndef DATASET_H
+#define DATASET_H
 
 #include <QObject>
 #include <QVector>
 #include <QDebug>
-#include <QFile>
 
-#include "Datatypes/essay.h"
-#include "Datatypes/pictureset.h"
-#include "Datatypes/dataset.h"
+// See: https://github.com/simoninns/OpenAIV/wiki/National-Data-file#data-set-records
 
-class DataFile
+class DataSet
 {
 public:
-    DataFile(QString filename1, QString filename2);
-    ~DataFile();
+    DataSet() = default;
+    ~DataSet() = default;
+    DataSet(const DataSet &) = default;
+    DataSet &operator=(const DataSet &) = default;
 
-    bool isFileReady();
-    Essay readEssayRecord(qint32 itemAddress);
-    PictureSet readPictureSetRecord(qint32 itemAddress);
-    DataSet readDataSetRecord(qint32 itemAddress);
+    DataSet(const qint32 &numberOfPictures, const QVector<qint32> &frameNumbers,
+          QVector<QString> &shortCaptions, const QVector<QString> &longCaptions);
+
+    qint32 numberOfPictures() const;
+    QVector<qint32> frameNumbers() const;
+    QVector<QString> shortCaptions() const;
+    QVector<QString> longCaptions() const;
 
 private:
-    QFile fileHandle1;
-    QFile fileHandle2;
-    const qint32 essayRecordSize = 36;
-    bool fileReady;
-
-    void open(QString filename1, QString filename2);
-    void close();
-    QByteArray readFile(qint32 filePointer, qint32 dataSize, qint32 fileNumber);
-    qint32 selectTargetDataFile(qint32 itemAddress);
+    qint32 m_numberOfPictures;
+    QVector<qint32> m_frameNumbers;
+    QVector<QString> m_shortCaptions;
+    QVector<QString> m_longCaptions;
 };
 
-#endif // DATAFILE_H
+// Custom streaming operator
+QDebug operator<<(QDebug dbg, const DataSet &dataSet);
+
+// Custom meta-type declaration
+Q_DECLARE_METATYPE(DataSet);
+
+#endif // DATASET_H

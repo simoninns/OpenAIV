@@ -149,7 +149,7 @@ Essay DataFile::readEssayRecord(qint32 itemAddress)
     return Essay(photoData, numberOfPages, title, pageTitles, pages);
 }
 
-// Read an picture set record and store in the PictureSet datatype
+// Read a picture set record and store it in the PictureSet datatype
 PictureSet DataFile::readPictureSetRecord(qint32 itemAddress)
 {
     if (!fileReady) return PictureSet();
@@ -217,6 +217,46 @@ PictureSet DataFile::readPictureSetRecord(qint32 itemAddress)
     return PictureSet(numberOfPictures, frameNumbers, shortCaptions, longCaptions);
 }
 
+// Read a data set record and store it in the DataSet datatype
+DataSet DataFile::readDataSetRecord(qint32 itemAddress)
+{
+    if (!fileReady) return DataSet();
+    qint32 targetFile = selectTargetDataFile(itemAddress);
+
+    // Initialise a new record
+
+//    m.nc.vars   = 0   // Number of dimensions/variables
+//    m.nc.datoff = 26  // Byte offset to data area
+//    m.nc.dsize  = 30  // Data size (1,2 or 4)
+//    m.nc.add    = 31  // Flag
+//    m.nc.norm   = 32  // Normalising factor for values
+//    m.nc.s.f    = 36  // 'M' or 'D' - multiply or divide by norm. fact
+//    m.nc.sfe    = 37  // 'E' or ' ': exponent or value: scaling factor
+//    m.nc.dm     = 42  // 10 bytes: list of available display methods
+//    m.nc.defdis = 52  // Default display method
+//    m.nc.colset = 53  // 3 bytes: colour set for dataset: BBC colours
+//    m.nc.labels.b = 56 // Start of label region
+
+    qint32 numberOfVariables; // 26 bytes?  this can't be right
+    qint32 dataAreaByteOffset; // 1, 2 or 4 - 4 bytes
+    qint32 dataSize; // 1 byte
+    qint32 flag; // 1 byte
+    qint32 normalizingFactor; // 4 bytes
+    char normMultOrDivide; // M-ultiply or D-ivide - 1 byte
+    qint32 exponentOrValue; // E or <space> - Exponent or value: scaling factor - 5 bytes
+    QVector<qint32> displayMethods; // 10 byte values (could be flags?) - 10 bytes
+    qint32 defaultDisplayMethod; // 1 bytes
+    qint32 colourSet; // Colour set for data (BBC colours) - 3 bytes
+
+    // 56 bytes is the start of the label region (26+4+1+1+4+1+5+10+1+3 = 56)
+
+    qint32 currentAddress = itemAddress;
+
+
+
+
+    return DataSet();
+}
 
 // Private methods ----------------------------------------------------------------------------------------------------
 
