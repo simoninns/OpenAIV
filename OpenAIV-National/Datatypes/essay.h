@@ -39,14 +39,17 @@ public:
     Essay(const Essay &) = default;
     Essay &operator=(const Essay &) = default;
 
-    Essay(const qint32 &numberOfPages, QString &title, QVector<QString> &pageTitles, const QVector<QString> &pages);
+    Essay(const QVector<qint32> &photoData, const qint32 &numberOfPages, QString &title,
+          QVector<QString> &pageTitles, const QVector<QString> &pages);
 
+    QVector<qint32> photoData() const;
     qint32 numberOfPages() const;
     QString title() const;
     QVector<QString> pageTitles() const;
     QVector<QString> pages() const;
 
 private:
+    QVector<qint32> m_photoData;
     qint32 m_numberOfPages;
     QString m_title;
     QVector<QString> m_pageTitles;

@@ -2,6 +2,7 @@
 #define NATIONALESSAYDIALOG_H
 
 #include <QDialog>
+#include <QFontDatabase>
 
 #include "Datatypes/names.h"
 #include "Filetypes/essayfile.h"
@@ -22,6 +23,8 @@ public:
 
 private:
     Ui::NationalEssayDialog *ui;
+
+    QString formatEssay(Essay essay);
 };
 
 #endif // NATIONALESSAYDIALOG_H

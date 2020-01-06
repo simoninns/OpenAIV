@@ -17,11 +17,7 @@
    <item>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <widget class="QTextEdit" name="textEdit">
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-      </widget>
+      <widget class="QTextBrowser" name="textBrowser"/>
      </item>
     </layout>
    </item>

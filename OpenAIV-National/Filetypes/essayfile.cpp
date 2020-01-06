@@ -76,13 +76,19 @@ Essay EssayFile::readEssay(qint32 itemAddress)
 {
     if (!fileReady) return Essay();
 
-    // Note: This is far from complete...
+    // Select the correct target DATA file based on the
+    // item's address
+    qint32 targetFile = 1; // DATA1
+    if (itemAddress & 0x80000000) {
+        targetFile = 2; // DATA2
+        // Strip the most-significant bit from the item address
+        itemAddress = itemAddress & 0x7FFFFFFF;
+    }
 
     // Initialise a new record
     QByteArray datasetHeader;
     datasetHeader.resize(28);
-    QByteArray photoData;
-    datasetHeader.resize(200);
+    QVector<qint32> photoData;
 
     qint32 numberOfPages;
     QString title;
@@ -92,30 +98,46 @@ Essay EssayFile::readEssay(qint32 itemAddress)
     qint32 currentAddress = itemAddress;
 
     // Read the 28 byte dataset header
-    datasetHeader = readFile(currentAddress, 28, 1);
+    datasetHeader = readFile(currentAddress, 28, targetFile);
     currentAddress += 28;
 
-    // Read the 200 byte photoData
-    photoData = readFile(currentAddress, 200, 1);
-    currentAddress += 200;
+    // Note: it looks like there is some kind of flag to indicate if the text
+    // page font should be proportional or fixed... not sure where it is though...
+    // if ((st%os & #x80) ~= 0) then propspaced := FALSE // a tabular text page
 
+    // Define a buffer for reading data from the input file
     QByteArray buffer;
     buffer.resize(1024);
 
-    buffer = readFile(currentAddress, 2, 1);
-    uchar *uBuffer = reinterpret_cast<uchar*>(buffer.data());
-    numberOfPages = uBuffer[0] + (uBuffer[1] << 8);
+    // Read the 200 byte photoData
+    buffer = readFile(currentAddress, 200, targetFile);
+    uchar *uBuffer0 = reinterpret_cast<uchar*>(buffer.data());
+
+    // The photo data is 25 entries of 8 bytes each (200 bytes total)
+    // I think this is a list of item addresses... but until the photo
+    // overlay is implemented... hard to be sure.  For now I am making
+    // it a vector of 50 32-bit values.
+    for (qint32 i = 0; i < 50; i++) {
+        qint32 p = i * 4; // 4 byte hops
+        qint32 photoWord = uBuffer0[p] + (uBuffer0[p+1] << 8) + (uBuffer0[p+2] << 16) + (uBuffer0[p+3] << 24);
+        photoData.append(photoWord);
+    }
+    currentAddress += 200;
+
+    buffer = readFile(currentAddress, 2, targetFile);
+    uchar *uBuffer1 = reinterpret_cast<uchar*>(buffer.data());
+    numberOfPages = uBuffer1[0] + (uBuffer1[1] << 8);
     currentAddress += 2;
 
     // Read the 30 byte title
-    buffer = readFile(currentAddress, 30, 1);
+    buffer = readFile(currentAddress, 30, targetFile);
     buffer[31] = '\0'; // terminate the string
     title = QString::fromUtf8(buffer);
     currentAddress += 30;
 
     // Read the 30 byte page title (one per page)
     for (qint32 i = 0; i < numberOfPages; i++) {
-        buffer = readFile(currentAddress, 30, 1);
+        buffer = readFile(currentAddress, 30, targetFile);
         buffer[31] = '\0'; // terminate the string
         pageTitles.append(QString::fromUtf8(buffer));
         currentAddress += 30;
@@ -123,13 +145,15 @@ Essay EssayFile::readEssay(qint32 itemAddress)
 
     // Read the pages
     for (qint32 i = 0; i < numberOfPages; i++) {
-        QByteArray buffer = readFile(currentAddress, 858, 1);
+        QByteArray buffer = readFile(currentAddress, 858, targetFile);
         buffer[859] = '\0';
         pages.append(QString::fromUtf8(buffer));
         currentAddress += 858;
+
+        //qDebug() << "Page" << i << "=" << pages.last();
     }
 
-    return Essay(numberOfPages, title, pageTitles, pages);
+    return Essay(photoData, numberOfPages, title, pageTitles, pages);
 }
 
 // Method to read byte data from the original file 1

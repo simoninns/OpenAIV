@@ -28,16 +28,24 @@ void NationalEssayDialog::showEssay(Names namesRecord)
     Essay essay = essayFile.readEssay(namesRecord.itemAddress());
     qDebug() << "Got" << essay.numberOfPages() << "pages from essay file";
 
-    ui->textEdit->clear();
-    QString text = "";
+    ui->textBrowser->clear();
+    ui->textBrowser->setLineWrapMode(QTextEdit::NoWrap);
+    ui->textBrowser->setText(formatEssay(essay));
+}
+
+// Format essay text for display
+QString NationalEssayDialog::formatEssay(Essay essay)
+{
+    QString browserText;
+
+    // Concatenate essay pages
     for (qint32 page = 0; page < essay.numberOfPages(); page++) {
-        text = text + essay.pages()[page];
+        browserText = browserText + essay.pages()[page];
     }
 
-    // Make text fixed 39 character width
-    for (qint32 i = 39; i <= text.size(); i += (39 + 1))
-        text.insert(i, '\n');
+    // Format text with a fixed 39 characters per line
+    for (qint32 i = 39; i <= browserText.size(); i += (39 + 1))
+        browserText.insert(i, '\n');
 
-
-    ui->textEdit->setText(text);
+    return browserText;
 }
