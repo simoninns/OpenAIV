@@ -177,13 +177,15 @@ PictureSet DataFile::readPictureSetRecord(qint32 itemAddress)
     // Read the number of pictures in the picture set and the long caption length flag
     buffer = readFile(currentAddress, 2, targetFile);
     uchar *uBuffer0 = reinterpret_cast<uchar*>(buffer.data());
-    numberOfPictures = uBuffer0[0];
-    qint32 longCaptionLengthFlag = uBuffer0[1];
+    qint32 lengthBitAndNumberOfPictures = uBuffer0[0] + (uBuffer0[1] << 8);
+    numberOfPictures = lengthBitAndNumberOfPictures & 0x7FFF;
+    qint32 longCaptionLengthFlag = (lengthBitAndNumberOfPictures & 0x8000 >> 15);
     if (longCaptionLengthFlag == 0) longCaptionLength = 156; else longCaptionLength = 312;
-    //qDebug() << "longCaptionLength = " << longCaptionLength;
+    //qDebug() << "numberOfPictures =" << numberOfPictures;
+    //qDebug() << "longCaptionLength =" << longCaptionLength;
     currentAddress += 2;
 
-     // Read the 2 byte frame numbers (one per picture)
+    // Read the 2 byte frame numbers (one per picture)
     buffer = readFile(currentAddress, 2 * numberOfPictures, targetFile);
     uchar *uBuffer1 = reinterpret_cast<uchar*>(buffer.data());
 
@@ -211,18 +213,6 @@ PictureSet DataFile::readPictureSetRecord(qint32 itemAddress)
         currentAddress += longCaptionLength;
         //qDebug() << "Long caption" << i << "-" << longCaptions.last();
     }
-
-
-
-
-
-
-
-
-    // Picture frame number 2 bytes per picture
-    // Short captions 30 bytes per picture
-    // Long captions 156 OR 312 bytes per picture???
-
 
     return PictureSet(numberOfPictures, frameNumbers, shortCaptions, longCaptions);
 }

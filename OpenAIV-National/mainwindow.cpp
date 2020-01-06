@@ -46,7 +46,7 @@ MainWindow::MainWindow(QWidget *parent)
     pictureSetDialog->restoreGeometry(configuration.getPictureSetDialogGeometry());
 
     ui->treeView->setModel(&nationalModel);
-    ui->treeView->expandAll();
+    //ui->treeView->expandAll();
     applicationStatus.setText(tr("Loaded ") + QString::number(nationalModel.totalHierarchyRecords()) +
                               tr(" hierarchy records containing ") + QString::number(nationalModel.totalNamesRecords()) +
                               tr(" names records"));
