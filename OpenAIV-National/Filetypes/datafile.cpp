@@ -1,6 +1,6 @@
 /************************************************************************
 
-    essayfile.cpp
+    datafile.cpp
 
     OpenAIV - Domesday Retrieval application
     Copyright (C) 2020 Simon Inns
@@ -22,20 +22,20 @@
 
 ************************************************************************/
 
-#include "essayfile.h"
+#include "datafile.h"
 
-EssayFile::EssayFile(QString filename1, QString filename2)
+DataFile::DataFile(QString filename1, QString filename2)
 {
     fileReady = false;
     open(filename1, filename2);
 }
 
-EssayFile::~EssayFile()
+DataFile::~DataFile()
 {
     close();
 }
 
-void EssayFile::open(QString filename1, QString filename2)
+void DataFile::open(QString filename1, QString filename2)
 {
     // Open the names file
     qDebug() << "Opening essay file from" << filename1 << "and" << filename2;
@@ -58,7 +58,7 @@ void EssayFile::open(QString filename1, QString filename2)
     fileReady = true;
 }
 
-void EssayFile::close()
+void DataFile::close()
 {
     fileHandle1.close();
     fileHandle2.close();
@@ -66,13 +66,13 @@ void EssayFile::close()
     qDebug() << "Essay file closed";
 }
 
-bool EssayFile::isFileReady()
+bool DataFile::isFileReady()
 {
     return fileReady;
 }
 
-// Read a names record and store in the Names datatype
-Essay EssayFile::readEssay(qint32 itemAddress)
+// Read an essay record and store in the Essay datatype
+Essay DataFile::readEssay(qint32 itemAddress)
 {
     if (!fileReady) return Essay();
 
@@ -157,7 +157,7 @@ Essay EssayFile::readEssay(qint32 itemAddress)
 }
 
 // Method to read byte data from the original file 1
-QByteArray EssayFile::readFile(qint32 filePointer, qint32 dataSize, qint32 fileNumber)
+QByteArray DataFile::readFile(qint32 filePointer, qint32 dataSize, qint32 fileNumber)
 {
     QByteArray response;
     response.resize(dataSize);

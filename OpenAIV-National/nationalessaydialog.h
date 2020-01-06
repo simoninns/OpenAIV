@@ -5,7 +5,7 @@
 #include <QFontDatabase>
 
 #include "Datatypes/names.h"
-#include "Filetypes/essayfile.h"
+#include "Filetypes/datafile.h"
 
 namespace Ui {
 class NationalEssayDialog;

@@ -1,6 +1,6 @@
 /************************************************************************
 
-    namesfile.h
+    datafile.h
 
     OpenAIV - Domesday Retrieval application
     Copyright (C) 2020 Simon Inns
@@ -22,8 +22,8 @@
 
 ************************************************************************/
 
-#ifndef ESSAYFILE_H
-#define ESSAYFILE_H
+#ifndef DATAFILE_H
+#define DATAFILE_H
 
 #include <QObject>
 #include <QVector>
@@ -32,11 +32,11 @@
 
 #include "Datatypes/essay.h"
 
-class EssayFile
+class DataFile
 {
 public:
-    EssayFile(QString filename1, QString filename2);
-    ~EssayFile();
+    DataFile(QString filename1, QString filename2);
+    ~DataFile();
 
     bool isFileReady();
     Essay readEssay(qint32 itemAddress);
@@ -52,4 +52,4 @@ private:
     QByteArray readFile(qint32 filePointer, qint32 dataSize, qint32 fileNumber);
 };
 
-#endif // ESSAYFILE_H
+#endif // DATAFILE_H

@@ -19,7 +19,7 @@ SOURCES += \
     Datatypes/essay.cpp \
     Datatypes/hierarchy.cpp \
     Datatypes/names.cpp \
-    Filetypes/essayfile.cpp \
+    Filetypes/datafile.cpp \
     Filetypes/hierarchyfile.cpp \
     Filetypes/namesfile.cpp \
     aboutdialog.cpp \
@@ -35,7 +35,7 @@ HEADERS += \
     Datatypes/essay.h \
     Datatypes/hierarchy.h \
     Datatypes/names.h \
-    Filetypes/essayfile.h \
+    Filetypes/datafile.h \
     Filetypes/hierarchyfile.h \
     Filetypes/namesfile.h \
     aboutdialog.h \

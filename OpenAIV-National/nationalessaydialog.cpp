@@ -21,11 +21,11 @@ void NationalEssayDialog::showEssay(Names namesRecord)
     qDebug() << "     Item type:" << namesRecord.itemType();
     qDebug() << "  Item address:" << namesRecord.itemAddress();
 
-    // Get the essay
-    EssayFile essayFile("/home/sdi/tmp/Indiv_files/National/DATA1",
+    // Get the essay from the data file based on the names record's item address
+    DataFile dataFile("/home/sdi/tmp/Indiv_files/National/DATA1",
                         "/home/sdi/tmp/Indiv_files/National/DATA2");
 
-    Essay essay = essayFile.readEssay(namesRecord.itemAddress());
+    Essay essay = dataFile.readEssay(namesRecord.itemAddress());
     qDebug() << "Got" << essay.numberOfPages() << "pages from essay file";
 
     ui->textBrowser->clear();
