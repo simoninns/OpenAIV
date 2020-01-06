@@ -26,6 +26,7 @@
 #define PICTURESETDIALOG_H
 
 #include <QDialog>
+#include <QMediaPlayer>
 
 #include "Datatypes/names.h"
 #include "Filetypes/datafile.h"
@@ -46,11 +47,8 @@ public:
 
 private slots:
     void on_firstPicture_pushButton_clicked();
-
     void on_last_pushButton_clicked();
-
     void on_previous_pushButton_clicked();
-
     void on_next_pushButton_clicked();
 
 private:
@@ -58,8 +56,12 @@ private:
     qint32 currentPictureNumber;
     PictureSet pictureSet;
 
+    // Video playback
+    QMediaPlayer *mediaPlayer = nullptr;
+
     void showPicture(qint32 pictureNumber);
     QString formatLongCaption(QString longCaption);
+    qint64 convertFrameToPosition(qint32 frameNumber);
 };
 
 #endif // PICTURESETDIALOG_H

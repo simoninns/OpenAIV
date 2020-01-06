@@ -31,10 +31,17 @@ PictureSetDialog::PictureSetDialog(QWidget *parent) :
 {
     ui->setupUi(this);
     currentPictureNumber = 0;
+
+    // Set up video player
+    mediaPlayer = new QMediaPlayer(this);
+    mediaPlayer->setAudioRole(QAudio::VideoRole);
+    mediaPlayer->setMedia(QUrl::fromLocalFile("/home/sdi/tmp/Indiv_files/National/national_ds4.mp4"));
+    mediaPlayer->setVideoOutput(ui->widget);
 }
 
 PictureSetDialog::~PictureSetDialog()
 {
+    delete mediaPlayer;
     delete ui;
 }
 
@@ -81,6 +88,10 @@ void PictureSetDialog::showPicture(qint32 pictureNumber)
     QString statusString = "Showing picture " + QString::number(currentPictureNumber) + " of " + QString::number(pictureSet.numberOfPictures()) +
             " - Frame #" + QString::number(pictureSet.frameNumbers()[pictureNumber - 1]);
     ui->status_label->setText(statusString);
+
+    // Show the frame from the LaserDisc
+    mediaPlayer->pause();
+    mediaPlayer->setPosition(convertFrameToPosition(pictureSet.frameNumbers()[pictureNumber - 1]));
 }
 
 // Format essay text for display
@@ -124,4 +135,15 @@ void PictureSetDialog::on_next_pushButton_clicked()
         return;
     }
     showPicture(currentPictureNumber);
+}
+
+// Method to convert a LaserDisc frame number to a media player position value
+qint64 PictureSetDialog::convertFrameToPosition(qint32 frameNumber)
+{
+    // Position is milliseconds from the beginning of the video file
+
+    // Video is PAL and always 25 frames per second, so 1000/25
+    // is 40 milliseconds per frame
+
+    return (static_cast<qint64>(frameNumber-1)) * 40;
 }

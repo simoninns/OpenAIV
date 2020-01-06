@@ -17,14 +17,7 @@
    <item>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <widget class="QGraphicsView" name="frame_graphicsView">
-       <property name="minimumSize">
-        <size>
-         <width>320</width>
-         <height>240</height>
-        </size>
-       </property>
-      </widget>
+      <widget class="QVideoWidget" name="widget" native="true"/>
      </item>
     </layout>
    </item>
@@ -46,7 +39,13 @@
        <property name="minimumSize">
         <size>
          <width>0</width>
-         <height>140</height>
+         <height>150</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>150</height>
         </size>
        </property>
        <property name="readOnly">
@@ -101,6 +100,14 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QVideoWidget</class>
+   <extends>QWidget</extends>
+   <header>qvideowidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
