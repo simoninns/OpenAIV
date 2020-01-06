@@ -69,6 +69,8 @@ void Configuration::writeConfiguration(void)
     // Windows
     configuration->beginGroup("windows");
     configuration->setValue("mainWindowGeometry", settings.windows.mainWindowGeometry);
+    configuration->setValue("essayDialogGeometry", settings.windows.essayDialogGeometry);
+    configuration->setValue("pictureSetDialogGeometry", settings.windows.pictureSetDialogGeometry);
     configuration->endGroup();
 
     // Sync the settings with disk
@@ -92,6 +94,8 @@ void Configuration::readConfiguration(void)
     // Windows
     configuration->beginGroup("windows");
     settings.windows.mainWindowGeometry = configuration->value("mainWindowGeometry").toByteArray();
+    settings.windows.essayDialogGeometry = configuration->value("essayDialogGeometry").toByteArray();
+    settings.windows.pictureSetDialogGeometry = configuration->value("pictureSetDialogGeometry").toByteArray();
     configuration->endGroup();
 }
 
@@ -143,4 +147,24 @@ void Configuration::setMainWindowGeometry(QByteArray mainWindowGeometry)
 QByteArray Configuration::getMainWindowGeometry(void)
 {
     return settings.windows.mainWindowGeometry;
+}
+
+void Configuration::setEssayDialogGeometry(QByteArray essayDialogGeometry)
+{
+    settings.windows.essayDialogGeometry = essayDialogGeometry;
+}
+
+QByteArray Configuration::getEssayDialogGeometry(void)
+{
+    return settings.windows.essayDialogGeometry;
+}
+
+void Configuration::setPictureSetDialogGeometry(QByteArray pictureSetDialogGeometry)
+{
+    settings.windows.pictureSetDialogGeometry = pictureSetDialogGeometry;
+}
+
+QByteArray Configuration::getPictureSetDialogGeometry(void)
+{
+    return settings.windows.pictureSetDialogGeometry;
 }

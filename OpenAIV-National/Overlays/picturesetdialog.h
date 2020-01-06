@@ -27,6 +27,7 @@
 
 #include <QDialog>
 #include <QMediaPlayer>
+#include <QVideoWidget>
 
 #include "Datatypes/names.h"
 #include "Filetypes/datafile.h"

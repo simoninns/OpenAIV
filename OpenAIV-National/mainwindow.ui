@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>OpenAIV - National</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="appicons.qrc">
+    <normaloff>:/icons/Graphics/256-OpenAIV-logo.png</normaloff>:/icons/Graphics/256-OpenAIV-logo.png</iconset>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
@@ -67,6 +71,8 @@
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="appicons.qrc"/>
+ </resources>
  <connections/>
 </ui>

@@ -42,6 +42,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Load the window geometry and settings from the configuration
     restoreGeometry(configuration.getMainWindowGeometry());
+    essayDialog->restoreGeometry(configuration.getEssayDialogGeometry());
+    pictureSetDialog->restoreGeometry(configuration.getPictureSetDialogGeometry());
 
     ui->treeView->setModel(&nationalModel);
     ui->treeView->expandAll();
@@ -52,6 +54,12 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    // Save the window and dialog geometry to the configuration
+    configuration.setMainWindowGeometry(saveGeometry());
+    configuration.setEssayDialogGeometry(essayDialog->saveGeometry());
+    configuration.setPictureSetDialogGeometry(pictureSetDialog->saveGeometry());
+    configuration.writeConfiguration();
+
     // Remove dialogues
     delete aboutDialog;
     delete essayDialog;

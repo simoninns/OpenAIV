@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>Graphics/64-OpenAIV-logo.png</file>
+        <file>Graphics/128-OpenAIV-logo.png</file>
+        <file>Graphics/256-OpenAIV-logo.png</file>
+    </qresource>
+</RCC>

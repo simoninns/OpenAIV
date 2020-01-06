@@ -52,6 +52,10 @@ public:
     // Get and set methods - windows
     void setMainWindowGeometry(QByteArray mainWindowGeometry);
     QByteArray getMainWindowGeometry(void);
+    void setEssayDialogGeometry(QByteArray essayDialogGeometry);
+    QByteArray getEssayDialogGeometry(void);
+    void setPictureSetDialogGeometry(QByteArray pictureSetDialogGeometry);
+    QByteArray getPictureSetDialogGeometry(void);
 
 signals:
 
@@ -69,6 +73,8 @@ private:
     // Window geometry and settings
     struct Windows {
         QByteArray mainWindowGeometry;
+        QByteArray essayDialogGeometry;
+        QByteArray pictureSetDialogGeometry;
     };
 
     // Overall settings structure

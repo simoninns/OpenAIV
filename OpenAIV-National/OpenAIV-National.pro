@@ -65,3 +65,6 @@ isEmpty(PREFIX) {
 }
 unix:!android: target.path = $$PREFIX/bin/
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    appicons.qrc
