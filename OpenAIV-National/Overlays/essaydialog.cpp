@@ -23,11 +23,11 @@
 ************************************************************************/
 
 #include "essaydialog.h"
-#include "ui_nationalessaydialog.h"
+#include "ui_essaydialog.h"
 
 EssayDialog::EssayDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::essayDialog)
+    ui(new Ui::EssayDialog)
 {
     ui->setupUi(this);
 }

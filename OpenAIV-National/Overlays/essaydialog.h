@@ -31,7 +31,7 @@
 #include "Filetypes/datafile.h"
 
 namespace Ui {
-class essayDialog;
+class EssayDialog;
 }
 
 class EssayDialog : public QDialog
@@ -45,7 +45,7 @@ public:
     void showEssay(Names namesRecord);
 
 private:
-    Ui::essayDialog *ui;
+    Ui::EssayDialog *ui;
 
     QString formatEssay(Essay essay);
 };
