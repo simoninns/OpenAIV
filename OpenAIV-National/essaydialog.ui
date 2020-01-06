@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>NationalEssayDialog</class>
- <widget class="QDialog" name="NationalEssayDialog">
+ <class>EssayDialog</class>
+ <widget class="QDialog" name="EssayDialog">
   <property name="geometry">
    <rect>
     <x>0</x>

@@ -32,7 +32,8 @@
 
 #include "configuration.h"
 #include "aboutdialog.h"
-#include "nationalessaydialog.h"
+#include "Overlays/essaydialog.h"
+#include "Overlays/picturesetdialog.h"
 #include "nationalmodel.h"
 
 QT_BEGIN_NAMESPACE
@@ -59,7 +60,8 @@ private:
 
     // Dialogues
     AboutDialog* aboutDialog;
-    NationalEssayDialog* nationalEssayDialog;
+    EssayDialog* essayDialog;
+    PictureSetDialog* pictureSetDialog;
 
     // Class globals
     QLabel applicationStatus;

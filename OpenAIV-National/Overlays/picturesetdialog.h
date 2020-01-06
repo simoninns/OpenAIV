@@ -1,6 +1,6 @@
 /************************************************************************
 
-    datafile.h
+    picturesetdialog.h
 
     OpenAIV - Domesday Retrieval application
     Copyright (C) 2020 Simon Inns
@@ -22,37 +22,44 @@
 
 ************************************************************************/
 
-#ifndef DATAFILE_H
-#define DATAFILE_H
+#ifndef PICTURESETDIALOG_H
+#define PICTURESETDIALOG_H
 
-#include <QObject>
-#include <QVector>
-#include <QDebug>
-#include <QFile>
+#include <QDialog>
 
-#include "Datatypes/essay.h"
-#include "Datatypes/pictureset.h"
+#include "Datatypes/names.h"
+#include "Filetypes/datafile.h"
 
-class DataFile
+namespace Ui {
+class PictureSetDialog;
+}
+
+class PictureSetDialog : public QDialog
 {
-public:
-    DataFile(QString filename1, QString filename2);
-    ~DataFile();
+    Q_OBJECT
 
-    bool isFileReady();
-    Essay readEssayRecord(qint32 itemAddress);
-    PictureSet readPictureSetRecord(qint32 itemAddress);
+public:
+    explicit PictureSetDialog(QWidget *parent = nullptr);
+    ~PictureSetDialog();
+
+    void showPictureSet(Names namesRecord);
+
+private slots:
+    void on_firstPicture_pushButton_clicked();
+
+    void on_last_pushButton_clicked();
+
+    void on_previous_pushButton_clicked();
+
+    void on_next_pushButton_clicked();
 
 private:
-    QFile fileHandle1;
-    QFile fileHandle2;
-    const qint32 essayRecordSize = 36;
-    bool fileReady;
+    Ui::PictureSetDialog *ui;    
+    qint32 currentPictureNumber;
+    PictureSet pictureSet;
 
-    void open(QString filename1, QString filename2);
-    void close();
-    QByteArray readFile(qint32 filePointer, qint32 dataSize, qint32 fileNumber);
-    qint32 selectTargetDataFile(qint32 itemAddress);
+    void showPicture(qint32 pictureNumber);
+    QString formatLongCaption(QString longCaption);
 };
 
-#endif // DATAFILE_H
+#endif // PICTURESETDIALOG_H

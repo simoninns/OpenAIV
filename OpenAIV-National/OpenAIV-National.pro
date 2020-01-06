@@ -19,15 +19,17 @@ SOURCES += \
     Datatypes/essay.cpp \
     Datatypes/hierarchy.cpp \
     Datatypes/names.cpp \
+    Datatypes/pictureset.cpp \
     Filetypes/datafile.cpp \
     Filetypes/hierarchyfile.cpp \
     Filetypes/namesfile.cpp \
+    Overlays/picturesetdialog.cpp \
+    Overlays/essaydialog.cpp \
     aboutdialog.cpp \
     configuration.cpp \
     logging.cpp \
     main.cpp \
     mainwindow.cpp \
-    nationalessaydialog.cpp \
     nationalitem.cpp \
     nationalmodel.cpp
 
@@ -35,21 +37,24 @@ HEADERS += \
     Datatypes/essay.h \
     Datatypes/hierarchy.h \
     Datatypes/names.h \
+    Datatypes/pictureset.h \
     Filetypes/datafile.h \
     Filetypes/hierarchyfile.h \
     Filetypes/namesfile.h \
+    Overlays/picturesetdialog.h \
+    Overlays/essaydialog.h \
     aboutdialog.h \
     configuration.h \
     logging.h \
     mainwindow.h \
-    nationalessaydialog.h \
     nationalitem.h \
     nationalmodel.h
 
 FORMS += \
+    essaydialog.ui \
+    picturesetdialog.ui \
     aboutdialog.ui \
-    mainwindow.ui \
-    nationalessaydialog.ui
+    mainwindow.ui
 
 # Rules for installation
 isEmpty(PREFIX) {

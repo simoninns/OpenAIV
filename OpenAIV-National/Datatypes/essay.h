@@ -29,7 +29,7 @@
 #include <QVector>
 #include <QDebug>
 
-// See: https://github.com/simoninns/OpenAIV/wiki/National-Essay-file
+// See: https://github.com/simoninns/OpenAIV/wiki/National-Data-file#essay-records
 
 class Essay
 {

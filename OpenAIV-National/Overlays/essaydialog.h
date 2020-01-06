@@ -1,6 +1,6 @@
 /************************************************************************
 
-    datafile.h
+    essaydialog.h
 
     OpenAIV - Domesday Retrieval application
     Copyright (C) 2020 Simon Inns
@@ -22,37 +22,32 @@
 
 ************************************************************************/
 
-#ifndef DATAFILE_H
-#define DATAFILE_H
+#ifndef ESSAYDIALOG_H
+#define ESSAYDIALOG_H
 
-#include <QObject>
-#include <QVector>
-#include <QDebug>
-#include <QFile>
+#include <QDialog>
 
-#include "Datatypes/essay.h"
-#include "Datatypes/pictureset.h"
+#include "Datatypes/names.h"
+#include "Filetypes/datafile.h"
 
-class DataFile
+namespace Ui {
+class essayDialog;
+}
+
+class EssayDialog : public QDialog
 {
-public:
-    DataFile(QString filename1, QString filename2);
-    ~DataFile();
+    Q_OBJECT
 
-    bool isFileReady();
-    Essay readEssayRecord(qint32 itemAddress);
-    PictureSet readPictureSetRecord(qint32 itemAddress);
+public:
+    explicit EssayDialog(QWidget *parent = nullptr);
+    ~EssayDialog();
+
+    void showEssay(Names namesRecord);
 
 private:
-    QFile fileHandle1;
-    QFile fileHandle2;
-    const qint32 essayRecordSize = 36;
-    bool fileReady;
+    Ui::essayDialog *ui;
 
-    void open(QString filename1, QString filename2);
-    void close();
-    QByteArray readFile(qint32 filePointer, qint32 dataSize, qint32 fileNumber);
-    qint32 selectTargetDataFile(qint32 itemAddress);
+    QString formatEssay(Essay essay);
 };
 
-#endif // DATAFILE_H
+#endif // ESSAYDIALOG_H

@@ -33,7 +33,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Create dialogues
     aboutDialog = new AboutDialog(this);
-    nationalEssayDialog = new NationalEssayDialog(this);
+    essayDialog = new EssayDialog(this);
+    pictureSetDialog = new PictureSetDialog(this);
 
     // Add a status bar to show the state of the source video file
     ui->statusbar->addWidget(&applicationStatus);
@@ -53,7 +54,8 @@ MainWindow::~MainWindow()
 {
     // Remove dialogues
     delete aboutDialog;
-    delete nationalEssayDialog;
+    delete essayDialog;
+    delete pictureSetDialog;
 
     // Remove the UI
     delete ui;
@@ -97,11 +99,17 @@ void MainWindow::on_treeView_doubleClicked(const QModelIndex &index)
 
         // If the type is currently supported by this application, pop it in a dialogue
         if (namesRecord.itemType() == 6 || namesRecord.itemType() == 7) {
-            // Text/Essay type
+            // Essay record
             qDebug() << "User clicked on" << namesRecord.itemName() << "with type" << namesRecord.itemTypeDescription() <<
                         "- opening essay dialogue";
-            nationalEssayDialog->showEssay(namesRecord);
-            nationalEssayDialog->show();
+            essayDialog->showEssay(namesRecord);
+            essayDialog->show();
+        } else if (namesRecord.itemType() == 8) {
+            // Picture set record
+            qDebug() << "User clicked on" << namesRecord.itemName() << "with type" << namesRecord.itemTypeDescription() <<
+                        "- opening picture set dialogue";
+            pictureSetDialog->showPictureSet(namesRecord);
+            pictureSetDialog->show();
         } else {
             qDebug() << "Type" << namesRecord.itemTypeDescription() << "is not yet supported by OpenAIV";
         }
