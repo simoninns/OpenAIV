@@ -78,8 +78,6 @@ Essay DataFile::readEssayRecord(quint32 itemAddress)
     qint32 targetFile = selectTargetDataFile(itemAddress);
 
     // Initialise a new record
-    QByteArray datasetHeader;
-    datasetHeader.resize(28);
     QVector<qint32> photoData;
 
     qint32 numberOfPages;
@@ -90,7 +88,7 @@ Essay DataFile::readEssayRecord(quint32 itemAddress)
     quint32 currentAddress = itemAddress;
 
     // Read the 28 byte dataset header
-    datasetHeader = readFile(currentAddress, 28, targetFile);
+    QByteArray datasetHeader = readFile(currentAddress, 28, targetFile);
     currentAddress += 28;
 
     // Note: it looks like there is some kind of flag to indicate if the text
@@ -156,8 +154,6 @@ PictureSet DataFile::readPictureSetRecord(quint32 itemAddress)
     qint32 targetFile = selectTargetDataFile(itemAddress);
 
     // Initialise a new record
-    QByteArray datasetHeader;
-    datasetHeader.resize(28);
     qint32 numberOfPictures;
     QVector<qint32> frameNumbers;
     QVector<QString> shortCaptions;
@@ -167,7 +163,7 @@ PictureSet DataFile::readPictureSetRecord(quint32 itemAddress)
     quint32 currentAddress = itemAddress;
 
     // Read the 28 byte dataset header
-    datasetHeader = readFile(currentAddress, 28, targetFile);
+    QByteArray datasetHeader = readFile(currentAddress, 28, targetFile);
     currentAddress += 28;
 
     // Define a buffer for reading data from the input file
@@ -225,74 +221,75 @@ DataSet DataFile::readDataSetRecord(quint32 itemAddress)
 
     quint32 currentAddress = itemAddress;
 
-    // Read the 56 byte dataset header
-    //
-    // m.nc.vars   = 0   // Number of dimensions/variables
-    // m.nc.datoff = 26  // Byte offset to data area
-    // m.nc.dsize  = 30  // Data size (1,2 or 4)
-    // m.nc.add    = 31  // Flag (from the code 2 is new data set, 4 is old-style dataset?)
-    // m.nc.norm   = 32  // Normalising factor for values
-    // m.nc.s.f    = 36  // 'M' or 'D' - multiply or divide by norm. fact
-    // m.nc.sfe    = 37  // 'E' or ' ': exponent or value: scaling factor
-    // m.nc.dm     = 42  // 10 bytes: list of available display methods
-    // m.nc.defdis = 52  // Default display method
-    // m.nc.colset = 53  // 3 bytes: colour set for dataset: BBC colours
-    // (m.nc.labels.b = 56 // Start of label region)
+    // Read the 28 byte dataset header
+    QByteArray datasetHeader = readFile(currentAddress, 28, targetFile);
+    currentAddress += 28;
 
-    QByteArray datasetHeader;
-    datasetHeader.resize(56);
-    datasetHeader = readFile(currentAddress, 56, targetFile);
-    uchar *uDatasetHeader = reinterpret_cast<uchar*>(datasetHeader.data());
+    // Read the 56 byte data chart header -----------------------------------------------------------------------------
+    QByteArray dataChartHeader = readFile(currentAddress, 56, targetFile);
+    uchar *uDatasetHeader = reinterpret_cast<uchar*>(dataChartHeader.data());
     currentAddress += 56;
 
+    // Number of variables in the dataset
     qint32 numberOfVariables = uDatasetHeader[0];
 
-    // These two fields state where in the DATA the dataset is, and the length of each datum
+    // The byte offset to the data area
     qint32 dataAreaByteOffset = uDatasetHeader[26] + (uDatasetHeader[27] << 8) + (uDatasetHeader[28] << 16) + (uDatasetHeader[29] << 24);
+
+    // Number of bytes per datum in the data area
     qint32 dataSize = uDatasetHeader[30];
 
-    // Seems to be some form of bit flag?
-    qint32 addFlag = uDatasetHeader[31];
+    // Flag indicating if the data is additive/non-additive
+    bool addFlag = uDatasetHeader[31] == 0 ? false : true;
 
-    // The normalizing factor and a flag to show if values should be multiplied or divided by it
+    // The normalizing factor
     qint32 normalizingFactor = uDatasetHeader[32] + (uDatasetHeader[33] << 8) + (uDatasetHeader[34] << 16) + (uDatasetHeader[35] << 24);
+
+    // Should the data be normalized by multiplication or division by the normalizing factor?
+    // ASCII 77 ('M') Multiply or ASCII 13 ('D') Divide
     qint32 normMultiplyOrDivide = uDatasetHeader[36];
 
-    // The scaling factor and flag?
-    qint32 scalingFactorFlag = uDatasetHeader[37]; // 'E' or ' '?
-    qint32 scalingFactor = uDatasetHeader[38] + (uDatasetHeader[39] << 8) + (uDatasetHeader[40] << 16) + (uDatasetHeader[41] << 24);
+    // Scaling factor: ASCII 69 ('E') indicates exponent and ASCII 32 (' ') indicates value
+    qint32 scalingFactor = uDatasetHeader[37];
 
-    // Flags indicating which types of chart are appropriate for the dataset
+    // 10 Flags indicating which types of chart are appropriate for the dataset
     QVector<bool> availableDisplayMethods; // 10 flags
-    for (qint32 i = 42; i < 52; i++) {
-        bool allowed = uDatasetHeader[i] == 0 ? true : false;
+    for (qint32 i = 42; i <= 51; i++) {
+        bool allowed = uDatasetHeader[i] == 0 ? false : true;
         availableDisplayMethods.append(allowed);
     }
 
     // The default type of chart to use for the dataset
     qint32 defaultDisplayMethod = uDatasetHeader[52];
 
-    // The Colour set to use for the chart
+    // The Colour set to use for the chart (not sure how to interpret this - notes say "BBC Colours")
     qint32 colourSet = uDatasetHeader[53] + (uDatasetHeader[54] << 8) + (uDatasetHeader[55] << 16);
 
     // Show dataset header debug
     qDebug() << "Dataset header:";
     qDebug() << "numberOfVariables =" << numberOfVariables;
+
     qDebug() << "dataAreaByteOffset =" << dataAreaByteOffset;
     qDebug() << "dataSize =" << dataSize << "bytes";
     qDebug() << "addFlag =" << addFlag;
     qDebug() << "normalizingFactor =" << normalizingFactor;
 
-    qDebug() << "normMultiplyOrDivide =" << normMultiplyOrDivide;
-    qDebug() << "scalingFactorFlag =" << scalingFactorFlag;
-    qDebug() << "scalingFactor =" << scalingFactor;
+    if (normMultiplyOrDivide == 77) qDebug() << "normMultiplyOrDivide = multiply";
+    else if (normMultiplyOrDivide == 13) qDebug() << "normMultiplyOrDivide = divide";
+    else qDebug() << "normMultiplyOrDivide = ERROR";
 
-    for (qint32 i = 0; i < availableDisplayMethods.size(); i++) {
-        qDebug().nospace() << "availableDisplayMethods[" << i << "] = " << availableDisplayMethods[i];
+    if (scalingFactor == 69) qDebug() << "scalingFactor = exponent";
+    else if (scalingFactor == 32) qDebug() << "scalingFactor = value";
+    else qDebug() << "scalingFactor = ERROR";
+
+    for (qint32 i = 0; i < availableDisplayMethods.size(); i++) { // Chart types are 1 to 10
+        qDebug().nospace() << "availableDisplayMethods[" << i+1 << "] = " << availableDisplayMethods[i];
     }
 
     qDebug() << "defaultDisplayMethod =" << defaultDisplayMethod;
     qDebug() << "colourSet =" << colourSet;
+
+    // ----------------------------------------------------------------------------------------------------------------
 
     return DataSet();
 }
@@ -320,7 +317,7 @@ QByteArray DataFile::readFile(quint32 filePointer, qint32 dataSize, qint32 fileN
 
         // Read the requested data from the file
         if (!fileHandle1.read(response.data(), static_cast<qint64>(dataSize))) {
-            qFatal("Could not read data from the data file");
+            qFatal("Could not read data from the DATA1 file");
             return QByteArray();
         }
     } else if (fileNumber == 2) { // DATA2
@@ -338,11 +335,11 @@ QByteArray DataFile::readFile(quint32 filePointer, qint32 dataSize, qint32 fileN
 
         // Read the requested data from the file
         if (!fileHandle2.read(response.data(), static_cast<qint64>(dataSize))) {
-            qFatal("Could not read data from the data file");
+            qFatal("Could not read data from the DATA2 file");
             return QByteArray();
         }
     } else {
-        qFatal("Passed itemType is not an essay!");
+        qFatal("fileNumber must be either 1 or 2 - this is a bug");
     }
 
     return response;

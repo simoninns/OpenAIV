@@ -65,10 +65,10 @@ QString Names::itemTypeDescription() const
 
     switch(m_itemType){
     case 1: // GMap
-        description = "GMap";
+        description = "GMap"; // Grid-Mappable data
         break;
     case 3: // AMap
-        description = "AMap";
+        description = "AMap"; // Areal-Mappable data
         break;
     case 4: // Data
         description = "Data";
