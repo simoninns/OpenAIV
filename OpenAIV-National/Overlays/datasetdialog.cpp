@@ -40,7 +40,7 @@ DataSetDialog::~DataSetDialog()
 // Show a national data set item
 void DataSetDialog::showDataSet(Names namesRecord)
 {
-    if (namesRecord.itemType() != 6 && namesRecord.itemType() != 7) {
+    if (namesRecord.itemType() != 4) {
         qDebug() << "namesRecord is not a valid data set!";
         return;
     }

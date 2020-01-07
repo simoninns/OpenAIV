@@ -34,6 +34,7 @@
 #include "aboutdialog.h"
 #include "Overlays/essaydialog.h"
 #include "Overlays/picturesetdialog.h"
+#include "Overlays/datasetdialog.h"
 #include "nationalmodel.h"
 
 QT_BEGIN_NAMESPACE
@@ -52,7 +53,6 @@ private slots:
     void on_actionOpen_AIV_data_triggered();
     void on_actionExit_triggered();
     void on_actionAbout_OpenAIV_triggered();
-
     void on_treeView_doubleClicked(const QModelIndex &index);
 
 private:
@@ -62,6 +62,7 @@ private:
     AboutDialog* aboutDialog;
     EssayDialog* essayDialog;
     PictureSetDialog* pictureSetDialog;
+    DataSetDialog* dataSetDialog;
 
     // Class globals
     QLabel applicationStatus;

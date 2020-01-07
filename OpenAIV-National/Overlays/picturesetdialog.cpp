@@ -71,7 +71,7 @@ void PictureSetDialog::showPictureSet(Names namesRecord)
     showPicture(currentPictureNumber);
 }
 
-// Show a picture
+// Show a picture (expects picture number starting from 1)
 void PictureSetDialog::showPicture(qint32 pictureNumber)
 {
     // Ensure the picture number is valid
@@ -85,7 +85,7 @@ void PictureSetDialog::showPicture(qint32 pictureNumber)
     ui->longCaption_textEdit->setText(formatLongCaption(pictureSet.longCaptions()[pictureNumber - 1]));
 
     // Set the status label
-    QString statusString = "Showing picture " + QString::number(currentPictureNumber) + " of " + QString::number(pictureSet.numberOfPictures()) +
+    QString statusString = "Showing picture " + QString::number(pictureNumber) + " of " + QString::number(pictureSet.numberOfPictures()) +
             " - Frame #" + QString::number(pictureSet.frameNumbers()[pictureNumber - 1]);
     ui->status_label->setText(statusString);
 

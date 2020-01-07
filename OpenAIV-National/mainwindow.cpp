@@ -35,6 +35,7 @@ MainWindow::MainWindow(QWidget *parent)
     aboutDialog = new AboutDialog(this);
     essayDialog = new EssayDialog(this);
     pictureSetDialog = new PictureSetDialog(this);
+    dataSetDialog = new DataSetDialog(this);
 
     // Add a status bar to show the state of the source video file
     ui->statusbar->addWidget(&applicationStatus);
@@ -44,12 +45,13 @@ MainWindow::MainWindow(QWidget *parent)
     restoreGeometry(configuration.getMainWindowGeometry());
     essayDialog->restoreGeometry(configuration.getEssayDialogGeometry());
     pictureSetDialog->restoreGeometry(configuration.getPictureSetDialogGeometry());
+    dataSetDialog->restoreGeometry(configuration.getDataSetDialogGeometry());
 
     ui->treeView->setModel(&nationalModel);
     //ui->treeView->expandAll();
     applicationStatus.setText(tr("Loaded ") + QString::number(nationalModel.totalHierarchyRecords()) +
-                              tr(" hierarchy records containing ") + QString::number(nationalModel.totalNamesRecords()) +
-                              tr(" names records"));
+                              tr(" hierarchy categories containing ") + QString::number(nationalModel.totalNamesRecords()) +
+                              tr(" named items"));
 }
 
 MainWindow::~MainWindow()
@@ -58,12 +60,14 @@ MainWindow::~MainWindow()
     configuration.setMainWindowGeometry(saveGeometry());
     configuration.setEssayDialogGeometry(essayDialog->saveGeometry());
     configuration.setPictureSetDialogGeometry(pictureSetDialog->saveGeometry());
+    configuration.setDataSetDialogGeometry(dataSetDialog->saveGeometry());
     configuration.writeConfiguration();
 
     // Remove dialogues
     delete aboutDialog;
     delete essayDialog;
     delete pictureSetDialog;
+    delete dataSetDialog;
 
     // Remove the UI
     delete ui;
@@ -94,7 +98,7 @@ void MainWindow::on_actionAbout_OpenAIV_triggered()
 
 // GUI signal handlers
 
-// Double-click on treeView
+// Double-click on hierarchy treeView
 void MainWindow::on_treeView_doubleClicked(const QModelIndex &index)
 {
     NationalItem* clickedItem = reinterpret_cast<NationalItem *>(index.internalPointer());
@@ -118,6 +122,12 @@ void MainWindow::on_treeView_doubleClicked(const QModelIndex &index)
                         "- opening picture set dialogue";
             pictureSetDialog->showPictureSet(namesRecord);
             pictureSetDialog->show();
+        } else if (namesRecord.itemType() == 4) {
+            // Data set record
+            qDebug() << "User clicked on" << namesRecord.itemName() << "with type" << namesRecord.itemTypeDescription() <<
+                        "- opening data set dialogue";
+            dataSetDialog->showDataSet(namesRecord);
+            dataSetDialog->show();
         } else {
             qDebug() << "Type" << namesRecord.itemTypeDescription() << "is not yet supported by OpenAIV";
         }

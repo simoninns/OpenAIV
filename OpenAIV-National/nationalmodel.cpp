@@ -173,8 +173,8 @@ void NationalModel::recurseModelData(NationalItem *parent, qint32 fileIndex,
     columnData.resize(1);
     columnData[0].setValue(newHierarchyRecord);
 
-    // Append a child item based on the hierarchy record
-    qDebug() << "Appending" << newHierarchyRecord;
+    // Append a child item based on the hierarchy record   
+    //qDebug() << "Appending" << newHierarchyRecord;
     NationalItem* child = new NationalItem(columnData, parent);
     parent->appendChild(child);
     m_totalHierarchyRecords++;
@@ -193,7 +193,7 @@ void NationalModel::recurseModelData(NationalItem *parent, qint32 fileIndex,
             QVector<QVariant> namesColumnData;
             namesColumnData.resize(1);
             namesColumnData[0].setValue(newNamesRecord);
-            qDebug() << "Appending" << newNamesRecord;
+            //qDebug() << "Appending" << newNamesRecord;
             NationalItem* namesChild = new NationalItem(namesColumnData, child);
             child->appendChild(namesChild);
             m_totalNamesRecords++;
