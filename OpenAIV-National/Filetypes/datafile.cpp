@@ -225,49 +225,66 @@ DataSet DataFile::readDataSetRecord(quint32 itemAddress)
     QByteArray datasetHeader = readFile(currentAddress, 28, targetFile);
     currentAddress += 28;
 
+    // This isn't really clear, but it looks like the footnotes reference is in the datasetHeader...
+    uchar *uDatasetHeader = reinterpret_cast<uchar*>(datasetHeader.data());
+    quint32 footnotesAddress = uDatasetHeader[2] + (uDatasetHeader[3] << 8) + (uDatasetHeader[4] << 16) + (uDatasetHeader[5] << 24);
+    qDebug() << "Footnotes address = " << footnotesAddress;
+
     // Read the 56 byte data chart header -----------------------------------------------------------------------------
     QByteArray dataChartHeader = readFile(currentAddress, 56, targetFile);
-    uchar *uDatasetHeader = reinterpret_cast<uchar*>(dataChartHeader.data());
+    uchar *uDataChartHeader = reinterpret_cast<uchar*>(dataChartHeader.data());
     currentAddress += 56;
 
     // Number of variables in the dataset
-    qint32 numberOfVariables = uDatasetHeader[0];
+    QVector<qint32> numberOfVariables;
+    for (qint32 i = 2; i < 25; i++) {
+        qint32 dimensions = uDataChartHeader[i];
+        if (dimensions != 0) numberOfVariables.append(dimensions);
+        else break; // stop at the first 0 byte value (end of variables)
+    }
 
     // The byte offset to the data area
-    qint32 dataAreaByteOffset = uDatasetHeader[26] + (uDatasetHeader[27] << 8) + (uDatasetHeader[28] << 16) + (uDatasetHeader[29] << 24);
+    qint32 dataAreaByteOffset = uDataChartHeader[26] + (uDataChartHeader[27] << 8) + (uDataChartHeader[28] << 16) + (uDataChartHeader[29] << 24);
 
     // Number of bytes per datum in the data area
-    qint32 dataSize = uDatasetHeader[30];
+    qint32 dataSize = uDataChartHeader[30];
 
     // Flag indicating if the data is additive/non-additive
-    bool addFlag = uDatasetHeader[31] == 0 ? false : true;
+    bool addFlag = uDataChartHeader[31] == 0 ? false : true;
 
     // The normalizing factor
-    qint32 normalizingFactor = uDatasetHeader[32] + (uDatasetHeader[33] << 8) + (uDatasetHeader[34] << 16) + (uDatasetHeader[35] << 24);
+    qint32 normalizingFactor = uDataChartHeader[32] + (uDataChartHeader[33] << 8) + (uDataChartHeader[34] << 16) + (uDataChartHeader[35] << 24);
 
     // Should the data be normalized by multiplication or division by the normalizing factor?
     // ASCII 77 ('M') Multiply or ASCII 13 ('D') Divide
-    qint32 normMultiplyOrDivide = uDatasetHeader[36];
+    qint32 normMultiplyOrDivide = uDataChartHeader[36];
 
     // Scaling factor: ASCII 69 ('E') indicates exponent and ASCII 32 (' ') indicates value
-    qint32 scalingFactor = uDatasetHeader[37];
+    qint32 scalingFactor = uDataChartHeader[37];
+
+    // Get the unused word
+    quint32 unusedWord = uDataChartHeader[38] + (uDataChartHeader[39] << 8) + (uDataChartHeader[40] << 16) + (uDataChartHeader[41] << 24);
 
     // 10 Flags indicating which types of chart are appropriate for the dataset
     QVector<bool> availableDisplayMethods; // 10 flags
     for (qint32 i = 42; i <= 51; i++) {
-        bool allowed = uDatasetHeader[i] == 0 ? false : true;
+        bool allowed = uDataChartHeader[i] == 0 ? false : true;
         availableDisplayMethods.append(allowed);
     }
 
     // The default type of chart to use for the dataset
-    qint32 defaultDisplayMethod = uDatasetHeader[52];
+    qint32 defaultDisplayMethod = uDataChartHeader[52];
 
     // The Colour set to use for the chart (not sure how to interpret this - notes say "BBC Colours")
-    qint32 colourSet = uDatasetHeader[53] + (uDatasetHeader[54] << 8) + (uDatasetHeader[55] << 16);
+    qint32 colourSet = uDataChartHeader[53] + (uDataChartHeader[54] << 8) + (uDataChartHeader[55] << 16);
 
     // Show dataset header debug
     qDebug() << "Dataset header:";
-    qDebug() << "numberOfVariables =" << numberOfVariables;
+    qDebug() << "numberOfVariables =" << numberOfVariables.size();
+
+    for (qint32 i = 0; i < numberOfVariables.size(); i++) {
+        qDebug().nospace() << "Variable #" << i << " has a dimension of " << numberOfVariables[i];
+    }
 
     qDebug() << "dataAreaByteOffset =" << dataAreaByteOffset;
     qDebug() << "dataSize =" << dataSize << "bytes";
@@ -282,6 +299,8 @@ DataSet DataFile::readDataSetRecord(quint32 itemAddress)
     else if (scalingFactor == 32) qDebug() << "scalingFactor = value";
     else qDebug() << "scalingFactor = ERROR";
 
+    qDebug() << "unusedWord =" << unusedWord;
+
     for (qint32 i = 0; i < availableDisplayMethods.size(); i++) { // Chart types are 1 to 10
         qDebug().nospace() << "availableDisplayMethods[" << i+1 << "] = " << availableDisplayMethods[i];
     }
@@ -290,6 +309,51 @@ DataSet DataFile::readDataSetRecord(quint32 itemAddress)
     qDebug() << "colourSet =" << colourSet;
 
     // ----------------------------------------------------------------------------------------------------------------
+    // Now we are at byte position 84 from the start of the record
+
+    // Define a buffer for reading data from the input file
+    QByteArray buffer;
+    buffer.resize(1024);
+
+    // Get the 3 chart labels (Title, axis, probably axis)
+    QVector<QString> chartLabels;
+    for (qint32 i = 0; i < 3; i++) {
+        buffer = readFile(currentAddress, 42, targetFile);
+        buffer[buffer[0]+1] = '\0'; // terminate the string
+        chartLabels.append(QString::fromUtf8(buffer.mid(1)).trimmed()); // Remove trailing spaces and ignore first byte
+        currentAddress += 42;
+        qDebug() << "Chart label" << i << "is" << chartLabels.last();
+    }
+
+    // Get the variable abbreviations and labels (42 byte maximum BCPL strings)
+    // Each variable has a header string followed by the number of dimensions in numberOfVariables[x]
+    QVector<QString> variableHeaders;
+    QVector<QString> variableLabels;
+    QVector<QString> variableLabelAbbreviations;
+    for (qint32 v = 0; v < numberOfVariables.size(); v++) {
+        // Get the variable header
+        buffer = readFile(currentAddress, 42, targetFile);
+        buffer[buffer[0]+1] = '\0'; // terminate the string
+        variableHeaders.append(QString::fromUtf8(buffer.mid(1)).trimmed()); // Remove trailing spaces and ignore first byte
+        currentAddress += 42;
+        qDebug() << "Variable" << v << "header is" << variableHeaders.last();
+
+        // Get the dimension names
+        for (qint32 i = 0; i < numberOfVariables[v]; i++) {
+            buffer = readFile(currentAddress, 42, targetFile);
+            buffer[buffer[0]+1] = '\0'; // terminate the string
+            variableLabels.append(QString::fromUtf8(buffer.mid(1)).trimmed()); // Remove trailing spaces and ignore first byte
+            variableLabelAbbreviations.append(QString::fromUtf8(buffer.mid(41, 1))); // Get the abbreviation at position 41 of the label
+            currentAddress += 42;
+            qDebug().nospace() << "  Label #" << i << ": " << variableLabelAbbreviations.last() << " = " << variableLabels.last();
+        }
+    }
+
+    // We should now be at the byte area (as indicated by the header)
+    qDebug() << "Current address is =" << currentAddress - itemAddress;
+
+    //  Read the chart data set's data --------------------------------------------------------------------------------
+
 
     return DataSet();
 }
