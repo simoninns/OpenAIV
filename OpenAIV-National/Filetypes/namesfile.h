@@ -39,16 +39,16 @@ public:
     ~NamesFile();
 
     bool isFileReady();
-    Names readRecord(qint32 recordIndex);
+    Names readRecord(quint32 recordIndex);
 
 private:
     QFile fileHandle;
-    const qint32 namesRecordSize = 36;
+    const quint32 namesRecordSize = 36;
     bool fileReady;
 
     void open(QString filename);
     void close();
-    QByteArray readFile(qint32 filePointer, qint32 dataSize);
+    QByteArray readFile(quint32 filePointer, qint32 dataSize);
 };
 
 #endif // NAMESFILE_H

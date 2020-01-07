@@ -41,9 +41,9 @@ public:
     ~DataFile();
 
     bool isFileReady();
-    Essay readEssayRecord(qint32 itemAddress);
-    PictureSet readPictureSetRecord(qint32 itemAddress);
-    DataSet readDataSetRecord(qint32 itemAddress);
+    Essay readEssayRecord(quint32 itemAddress);
+    PictureSet readPictureSetRecord(quint32 itemAddress);
+    DataSet readDataSetRecord(quint32 itemAddress);
 
 private:
     QFile fileHandle1;
@@ -53,8 +53,8 @@ private:
 
     void open(QString filename1, QString filename2);
     void close();
-    QByteArray readFile(qint32 filePointer, qint32 dataSize, qint32 fileNumber);
-    qint32 selectTargetDataFile(qint32 itemAddress);
+    QByteArray readFile(quint32 filePointer, qint32 dataSize, qint32 fileNumber);
+    qint32 selectTargetDataFile(quint32 &itemAddress);
 };
 
 #endif // DATAFILE_H

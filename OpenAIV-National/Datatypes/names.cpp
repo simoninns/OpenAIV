@@ -24,7 +24,7 @@
 
 #include "names.h"
 
-Names::Names(const QString &itemName, const qint32 &itemType, const qint32 &itemAddress)
+Names::Names(const QString &itemName, const qint32 &itemType, const quint32 &itemAddress)
             : m_itemName(itemName), m_itemType(itemType), m_itemAddress(itemAddress)
 {
 }
@@ -97,7 +97,7 @@ QString Names::itemTypeDescription() const
     return description;
 }
 
-qint32 Names::itemAddress() const
+quint32 Names::itemAddress() const
 {
     return m_itemAddress;
 }

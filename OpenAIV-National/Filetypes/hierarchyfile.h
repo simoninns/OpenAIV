@@ -39,7 +39,7 @@ public:
     ~HierarchyFile();
 
     bool isFileReady();
-    Hierarchy readRecord(qint32 fileIndex);
+    Hierarchy readRecord(quint32 fileIndex);
 
 private:
     QFile fileHandle;
@@ -48,7 +48,7 @@ private:
 
     void open(QString filename);
     void close();
-    QByteArray readFile(qint32 filePointer, qint32 dataSize);
+    QByteArray readFile(quint32 filePointer, qint32 dataSize);
 };
 
 #endif // HIERARCHYFILE_H

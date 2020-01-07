@@ -64,19 +64,19 @@ bool HierarchyFile::isFileReady()
 }
 
 // Read a hierarchy record and store in the Hierarchy datatype
-Hierarchy HierarchyFile::readRecord(qint32 fileIndex)
+Hierarchy HierarchyFile::readRecord(quint32 fileIndex)
 {
     if (!fileReady) return Hierarchy();
 
     // Initialise a new record
-    qint32 index = fileIndex;
-    qint32 father = 0;
+    quint32 index = fileIndex;
+    quint32 father = 0;
     qint32 text = 0;
     QString title;
     bool bottomFlag = false;
     qint32 level = 0;
-    QVector<qint32> hdps;
-    QVector<qint32> xrefs;
+    QVector<quint32> hdps;
+    QVector<quint32> xrefs;
 
     // Read in a hierarchy record
     QByteArray hierarchyRawData = readFile(fileIndex, hierarchyRecordSize);
@@ -154,7 +154,7 @@ Hierarchy HierarchyFile::readRecord(qint32 fileIndex)
 
 
 // Method to read byte data from the original file
-QByteArray HierarchyFile::readFile(qint32 filePointer, qint32 dataSize)
+QByteArray HierarchyFile::readFile(quint32 filePointer, qint32 dataSize)
 {
     QByteArray response;
     response.resize(dataSize);

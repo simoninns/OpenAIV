@@ -72,7 +72,7 @@ bool DataFile::isFileReady()
 }
 
 // Read an essay record and store in the Essay datatype
-Essay DataFile::readEssayRecord(qint32 itemAddress)
+Essay DataFile::readEssayRecord(quint32 itemAddress)
 {
     if (!fileReady) return Essay();
     qint32 targetFile = selectTargetDataFile(itemAddress);
@@ -87,7 +87,7 @@ Essay DataFile::readEssayRecord(qint32 itemAddress)
     QVector<QString> pageTitles;
     QVector<QString> pages;
 
-    qint32 currentAddress = itemAddress;
+    quint32 currentAddress = itemAddress;
 
     // Read the 28 byte dataset header
     datasetHeader = readFile(currentAddress, 28, targetFile);
@@ -150,7 +150,7 @@ Essay DataFile::readEssayRecord(qint32 itemAddress)
 }
 
 // Read a picture set record and store it in the PictureSet datatype
-PictureSet DataFile::readPictureSetRecord(qint32 itemAddress)
+PictureSet DataFile::readPictureSetRecord(quint32 itemAddress)
 {
     if (!fileReady) return PictureSet();
     qint32 targetFile = selectTargetDataFile(itemAddress);
@@ -164,7 +164,7 @@ PictureSet DataFile::readPictureSetRecord(qint32 itemAddress)
     QVector<QString> longCaptions;
     qint32 longCaptionLength = 152;
 
-    qint32 currentAddress = itemAddress;
+    quint32 currentAddress = itemAddress;
 
     // Read the 28 byte dataset header
     datasetHeader = readFile(currentAddress, 28, targetFile);
@@ -218,12 +218,12 @@ PictureSet DataFile::readPictureSetRecord(qint32 itemAddress)
 }
 
 // Read a data set record and store it in the DataSet datatype
-DataSet DataFile::readDataSetRecord(qint32 itemAddress)
+DataSet DataFile::readDataSetRecord(quint32 itemAddress)
 {
     if (!fileReady) return DataSet();
     qint32 targetFile = selectTargetDataFile(itemAddress);
 
-    qint32 currentAddress = itemAddress;
+    quint32 currentAddress = itemAddress;
 
     // Read the 56 byte dataset header
     //
@@ -300,7 +300,7 @@ DataSet DataFile::readDataSetRecord(qint32 itemAddress)
 // Private methods ----------------------------------------------------------------------------------------------------
 
 // Method to read byte data from the data file
-QByteArray DataFile::readFile(qint32 filePointer, qint32 dataSize, qint32 fileNumber)
+QByteArray DataFile::readFile(quint32 filePointer, qint32 dataSize, qint32 fileNumber)
 {
     QByteArray response;
     response.resize(dataSize);
@@ -308,37 +308,37 @@ QByteArray DataFile::readFile(qint32 filePointer, qint32 dataSize, qint32 fileNu
     if (fileNumber == 1) { // DATA1
         // Verify that request is in bounds
         if ((filePointer + dataSize) > fileHandle1.size()) {
-            qFatal("Request for data beyond the size of the essay file");
+            qFatal("Request for data beyond the size of the DATA1 file");
             return QByteArray();
         }
 
         // Seek to the specified file location
         if (!fileHandle1.seek(filePointer)) {
-            qFatal("Could not seek to required position in the essay file");
+            qFatal("Could not seek to required position in the DATA1 file");
             return QByteArray();
         }
 
         // Read the requested data from the file
         if (!fileHandle1.read(response.data(), static_cast<qint64>(dataSize))) {
-            qFatal("Could not read data from the essay file");
+            qFatal("Could not read data from the data file");
             return QByteArray();
         }
     } else if (fileNumber == 2) { // DATA2
         // Verify that request is in bounds
         if ((filePointer + dataSize) > fileHandle2.size()) {
-            qFatal("Request for data beyond the size of the essay file");
+            qFatal("Request for data beyond the size of the DATA2 file");
             return QByteArray();
         }
 
         // Seek to the specified file location
         if (!fileHandle2.seek(filePointer)) {
-            qFatal("Could not seek to required position in the essay file");
+            qFatal("Could not seek to required position in the DATA2 file");
             return QByteArray();
         }
 
         // Read the requested data from the file
         if (!fileHandle2.read(response.data(), static_cast<qint64>(dataSize))) {
-            qFatal("Could not read data from the essay file");
+            qFatal("Could not read data from the data file");
             return QByteArray();
         }
     } else {
@@ -350,7 +350,7 @@ QByteArray DataFile::readFile(qint32 filePointer, qint32 dataSize, qint32 fileNu
 
 // Method to select the correct target DATA file based on the
 // item's address
-qint32 DataFile::selectTargetDataFile(qint32 itemAddress)
+qint32 DataFile::selectTargetDataFile(quint32& itemAddress)
 {
     qint32 targetFile = 1; // DATA1
     if (itemAddress & 0x80000000) {
@@ -359,8 +359,8 @@ qint32 DataFile::selectTargetDataFile(qint32 itemAddress)
         itemAddress = itemAddress & 0x7FFFFFFF;
     }
 
-    if (targetFile == 1) qDebug() << "Using DATA1 with item address" << itemAddress;
-    else qDebug() << "Using DATA2 with item address" << itemAddress;
+    if (targetFile == 1) qDebug() << "Using file DATA1 with item address" << itemAddress;
+    else qDebug() << "Using file DATA2 with item address" << itemAddress;
 
     return targetFile;
 }

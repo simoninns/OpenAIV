@@ -64,15 +64,15 @@ bool NamesFile::isFileReady()
 }
 
 // Read a names record and store in the Names datatype
-Names NamesFile::readRecord(qint32 recordIndex)
+Names NamesFile::readRecord(quint32 recordIndex)
 {
     if (!fileReady) return Names();
 
     // Initialise a new record
-    qint32 index = recordIndex * namesRecordSize;
+    quint32 index = recordIndex * namesRecordSize;
     QString itemName;
     qint32 itemType;
-    qint32 itemAddress;
+    quint32 itemAddress;
 
     // Read in a hierarchy record
     QByteArray namesRawData = readFile(index, namesRecordSize);
@@ -99,7 +99,7 @@ Names NamesFile::readRecord(qint32 recordIndex)
 
 
 // Method to read byte data from the original file
-QByteArray NamesFile::readFile(qint32 filePointer, qint32 dataSize)
+QByteArray NamesFile::readFile(quint32 filePointer, qint32 dataSize)
 {
     QByteArray response;
     response.resize(dataSize);

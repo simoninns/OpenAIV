@@ -39,25 +39,25 @@ public:
     Hierarchy(const Hierarchy &) = default;
     Hierarchy &operator=(const Hierarchy &) = default;
 
-    Hierarchy(const qint32 &index, const qint32 &father, const qint32 &text,
+    Hierarchy(const quint32 &index, const quint32 &father, const qint32 &text,
               const bool &bottomFlag, const qint32 &level, const QString &title,
-              const QVector<qint32> &hdps, const QVector<qint32> &xrefs);
+              const QVector<quint32> &hdps, const QVector<quint32> &xrefs);
 
-    qint32 index() const;
+    quint32 index() const;
     bool bottomFlag() const;
     QString title() const;
-    QVector<qint32> hdps() const;
-    QVector<qint32> xrefs() const;
+    QVector<quint32> hdps() const;
+    QVector<quint32> xrefs() const;
 
 private:
-    qint32 m_index;
-    qint32 m_father;
+    quint32 m_index;
+    quint32 m_father;
     qint32 m_text;
     bool m_bottomFlag;
     qint32 m_level;
     QString m_title;
-    QVector<qint32> m_hdps;
-    QVector<qint32> m_xrefs;
+    QVector<quint32> m_hdps;
+    QVector<quint32> m_xrefs;
 };
 
 // Custom streaming operator

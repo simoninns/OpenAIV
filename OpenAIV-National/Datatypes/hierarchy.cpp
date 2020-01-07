@@ -24,9 +24,9 @@
 
 #include "hierarchy.h"
 
-Hierarchy::Hierarchy(const qint32 &index, const qint32 &father, const qint32 &text,
+Hierarchy::Hierarchy(const quint32 &index, const quint32 &father, const qint32 &text,
           const bool &bottomFlag, const qint32 &level, const QString &title,
-          const QVector<qint32> &hdps, const QVector<qint32> &xrefs)
+          const QVector<quint32> &hdps, const QVector<quint32> &xrefs)
             : m_index(index), m_father(father), m_text(text),
               m_bottomFlag(bottomFlag), m_level(level), m_title(title),
               m_hdps(hdps), m_xrefs(xrefs)
@@ -41,7 +41,7 @@ QDebug operator<<(QDebug dbg, const Hierarchy &hierarchy)
         dbg.nospace().noquote() << "Hierarchy()";
     else {
         dbg.nospace().noquote() << "Hierarchy(" << contents << ")";
-        QVector<qint32> references = hierarchy.xrefs();
+        QVector<quint32> references = hierarchy.xrefs();
         if (!references.isEmpty()) {
             dbg.nospace().noquote() << " with references ";
             for (qint32 i = 0; i < references.size(); i++) {
@@ -55,7 +55,7 @@ QDebug operator<<(QDebug dbg, const Hierarchy &hierarchy)
 }
 
 // Get functions ------------------------------------------------------------------------------------------------------
-qint32 Hierarchy::index() const
+quint32 Hierarchy::index() const
 {
     return m_index;
 }
@@ -70,14 +70,14 @@ QString Hierarchy::title() const
     return m_title;
 }
 
-QVector<qint32> Hierarchy::hdps() const
+QVector<quint32> Hierarchy::hdps() const
 {
     return m_hdps;
 }
 
 // Note: The cross-references are already populated.  Each reference points to an
 // heirarchical record index.
-QVector<qint32> Hierarchy::xrefs() const
+QVector<quint32> Hierarchy::xrefs() const
 {
     return m_xrefs;
 }

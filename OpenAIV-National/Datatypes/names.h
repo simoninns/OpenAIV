@@ -39,18 +39,18 @@ public:
     Names(const Names &) = default;
     Names &operator=(const Names &) = default;
 
-    Names(const QString &itemName, const qint32 &itemType, const qint32 &itemAddress);
+    Names(const QString &itemName, const qint32 &itemType, const quint32 &itemAddress);
 
     QString itemName() const;
     QString itemTypeAndItemName() const;
     qint32 itemType() const;
     QString itemTypeDescription() const;
-    qint32 itemAddress() const;
+    quint32 itemAddress() const;
 
 private:
     QString m_itemName;
     qint32 m_itemType;
-    qint32 m_itemAddress;
+    quint32 m_itemAddress;
 };
 
 // Custom streaming operator
