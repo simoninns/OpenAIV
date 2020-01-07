@@ -29,6 +29,7 @@
 #include <QVector>
 #include <QDebug>
 #include <QFile>
+#include <QtMath>
 
 #include "Datatypes/essay.h"
 #include "Datatypes/pictureset.h"

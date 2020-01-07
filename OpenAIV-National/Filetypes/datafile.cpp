@@ -354,6 +354,46 @@ DataSet DataFile::readDataSetRecord(quint32 itemAddress)
 
     //  Read the chart data set's data --------------------------------------------------------------------------------
 
+    // This is mostly incorrect right now - just a guess
+
+    // One variable at a time
+    for (qint32 v = 0; v < numberOfVariables.size(); v++) {
+        // One dimension at a time
+        for (qint32 i = 0; i < numberOfVariables[v]; i++) {
+            buffer = readFile(currentAddress, dataSize, targetFile);
+            uchar *uChartData = reinterpret_cast<uchar*>(buffer.data());
+
+//            if (normMultiplyOrDivide == 77 && scalingFactor == 69) qDebug() << "Values are - multiply / exponent";
+//            else if (normMultiplyOrDivide == 13 && scalingFactor == 69) qDebug() << "Values are - Divide / exponent";
+//            else if (normMultiplyOrDivide == 77 && scalingFactor == 32) qDebug() << "Values are - multiply / value";
+//            else if (normMultiplyOrDivide == 13 && scalingFactor == 32) qDebug() << "Values are - Divide / value";
+//            else qFatal("multiply/divide exponent/value - something went really wrong!");
+
+            quint32 dataValue = 0;
+            if (dataSize == 1) {
+                dataValue = uChartData[0]; // 8 bit value
+                currentAddress += 1;
+            } else if (dataSize == 2) {
+                dataValue = uChartData[0] + (uChartData[1] << 8); // 16 bit value
+                currentAddress += 2;
+            } else if (dataSize == 4) {
+                dataValue = uChartData[0] + (uChartData[1] << 8) +
+                        (uChartData[2] << 16) + (uChartData[3] << 24); // 32 bit value
+                currentAddress += 4;
+            } else {
+                qFatal("Data value width in chart dataset is invalid - something has gone wrong!");
+            }
+            qDebug() << "Got dataValue" << dataValue << "normalizingFactor" << normalizingFactor;
+
+            if (normMultiplyOrDivide == 77 && scalingFactor == 69) dataValue = dataValue * qPow(10, normalizingFactor); // Multiply / exponent
+            else if (normMultiplyOrDivide == 13 && scalingFactor == 69) dataValue = dataValue / qPow(10, normalizingFactor); // Divide / exponent
+            else if (normMultiplyOrDivide == 77 && scalingFactor == 32) dataValue = dataValue * normalizingFactor; // Multiply / value
+            else if (normMultiplyOrDivide == 13 && scalingFactor == 32) dataValue = dataValue / normalizingFactor; // Divide / value
+            else dataValue = 0;
+
+            qDebug() << "Variable" << variableHeaders[v] << "dimension" << variableLabels[i] << "=" << dataValue;
+        }
+    }
 
     return DataSet();
 }
