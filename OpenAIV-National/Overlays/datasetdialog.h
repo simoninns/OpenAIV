@@ -26,6 +26,11 @@
 #define DATASETDIALOG_H
 
 #include <QDialog>
+#include <QLabel>
+#include <QGroupBox>
+#include <QLayout>
+#include <QCheckBox>
+#include <QRadioButton>
 
 #include "Datatypes/names.h"
 #include "Filetypes/datafile.h"
@@ -44,8 +49,22 @@ public:
 
     void showDataSet(Names namesRecord);
 
+private slots:
+    void dimensionCheckBoxChanged(bool state);
+
 private:
     Ui::DataSetDialog *ui;
+
+    QGroupBox* variableSelectionGroupBox;
+    QVBoxLayout* variableSelectionGroupBoxLayout;
+    QVector<QRadioButton*> variableSelectionRadioButtons;
+
+    QVector<QGroupBox*> variableGroupBoxes;
+    QVector<QVBoxLayout*> variableGroupBoxLayouts;
+    QVector<QVector<QCheckBox*>> dimensionCheckBoxes;
+
+    void clearDataSet();
+    void generateDataView(void);
 };
 
 #endif // DATASETDIALOG_H

@@ -327,7 +327,7 @@ DataSet DataFile::readDataSetRecord(quint32 itemAddress)
         // Get the variable header
         buffer = readFile(currentAddress, 42, targetFile);
         buffer[buffer[0]+1] = '\0'; // terminate the string
-        variableLabels.append(QString::fromUtf8(buffer.mid(1)).trimmed()); // Remove trailing spaces and ignore first byte
+        variableLabels[v] = QString::fromUtf8(buffer.mid(1)).trimmed(); // Remove trailing spaces and ignore first byte
         currentAddress += 42;
         qDebug() << "Variable" << v << "header is" << variableLabels.last();
 

@@ -73,3 +73,7 @@ unix:!android: target.path = $$PREFIX/bin/
 
 RESOURCES += \
     appicons.qrc
+
+# Include the QWT library (used for charting)
+INCLUDEPATH += $(QWT)/include
+LIBS += -lqwt-qt5
