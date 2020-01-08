@@ -24,51 +24,75 @@
 
 #include "dataset.h"
 
-DataSet::DataSet(const qint32 &numberOfPictures, const QVector<qint32> &frameNumbers,
-                       QVector<QString> &shortCaptions, const QVector<QString> &longCaptions)
-            : m_numberOfPictures(numberOfPictures) ,m_frameNumbers(frameNumbers),
-              m_shortCaptions(shortCaptions), m_longCaptions(longCaptions)
+DataSet::DataSet(const QVector<QString> &chartLabels, const QVector<QString> &variableLabels,
+                 const QVector<QVector<QString>> &dimensionLabels, const QVector<quint32> &dataPoints,
+                 const quint32 &footNoteItemAddress, const bool &additiveDataFlag,
+                 const QVector<bool> &availableDisplayMethods, const qint32 &defaultDisplayMethod,
+                 const quint32 &colourSet)
+            : m_chartLabels(chartLabels) ,m_variableLabels(variableLabels),
+              m_dimensionLabels(dimensionLabels), m_dataPoints(dataPoints),
+              m_footNoteItemAddress(footNoteItemAddress), m_additiveDataFlag(additiveDataFlag),
+              m_availableDisplayMethods(availableDisplayMethods), m_defaultDisplayMethod(defaultDisplayMethod),
+              m_colourSet(colourSet)
 {
 }
 
 // Custom streaming operator (for debug)
 QDebug operator<<(QDebug dbg, const DataSet &dataSet)
 {
-    const qint32 numberOfPictures = dataSet.numberOfPictures();
-    if (numberOfPictures < 1)
+    const qint32 numberOfDataPoints = dataSet.dataPoints().size();
+    const QString chartTitle = dataSet.chartLabels()[0];
+    if (numberOfDataPoints < 1)
         dbg.nospace().noquote() << "DataSet()";
     else {
-        dbg.nospace().noquote() << "DataSet(" << numberOfPictures << ")";
-        QVector<qint32> frameNumbers = dataSet.frameNumbers();
-        if (!frameNumbers.isEmpty()) {
-            dbg.nospace().noquote() << " with frames ";
-            for (qint32 i = 0; i < frameNumbers.size(); i++) {
-                dbg.nospace().noquote() << frameNumbers[i];
-                if (i != frameNumbers.size() - 1) dbg.nospace().noquote() << ", ";
-            }
-        }
+        dbg.nospace().noquote() << "DataSet(" << numberOfDataPoints << ") - " << chartTitle;
     }
 
     return dbg.maybeSpace();
 }
 
 // Get functions ------------------------------------------------------------------------------------------------------
-qint32 DataSet::numberOfPictures() const
+QVector<QString> DataSet::chartLabels() const
 {
-    return m_numberOfPictures;
+    return  m_chartLabels;
 }
 
-QVector<qint32> DataSet::frameNumbers() const
+QVector<QString> DataSet::variableLabels() const
 {
-    return m_frameNumbers;
+    return m_variableLabels;
 }
 
-QVector<QString> DataSet::shortCaptions() const
+QVector<QVector<QString>> DataSet::dimensionLabels() const
 {
-    return m_shortCaptions;
+    return m_dimensionLabels;
 }
 
-QVector<QString> DataSet::longCaptions() const
+QVector<quint32> DataSet::dataPoints() const
 {
-    return m_longCaptions;
+    return m_dataPoints;
+}
+
+quint32 DataSet::footNoteItemAddress() const
+{
+    return m_footNoteItemAddress;
+}
+
+bool DataSet::additiveDataFlag() const
+{
+    return m_additiveDataFlag;
+}
+
+QVector<bool> DataSet::availableDisplayMethods() const
+{
+    return m_availableDisplayMethods;
+}
+
+qint32 DataSet::defaultDisplayMethod() const
+{
+    return m_defaultDisplayMethod;
+}
+
+quint32 DataSet::colourSet() const
+{
+    return m_colourSet;
 }

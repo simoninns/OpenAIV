@@ -39,19 +39,32 @@ public:
     DataSet(const DataSet &) = default;
     DataSet &operator=(const DataSet &) = default;
 
-    DataSet(const qint32 &numberOfPictures, const QVector<qint32> &frameNumbers,
-          QVector<QString> &shortCaptions, const QVector<QString> &longCaptions);
+    DataSet(const QVector<QString> &chartLabels, const QVector<QString> &variableLabels,
+            const QVector<QVector<QString>> &dimensionLabels, const QVector<quint32> &dataPoints,
+            const quint32 &footNoteItemAddress, const bool &additiveDataFlag,
+            const QVector<bool> &availableDisplayMethods, const qint32 &defaultDisplayMethod,
+            const quint32 &colourSet);
 
-    qint32 numberOfPictures() const;
-    QVector<qint32> frameNumbers() const;
-    QVector<QString> shortCaptions() const;
-    QVector<QString> longCaptions() const;
+    QVector<QString> chartLabels() const;
+    QVector<QString> variableLabels() const;
+    QVector<QVector<QString>> dimensionLabels() const;
+    QVector<quint32> dataPoints() const;
+    quint32 footNoteItemAddress() const;
+    bool additiveDataFlag() const;
+    QVector<bool> availableDisplayMethods() const;
+    qint32 defaultDisplayMethod() const;
+    quint32 colourSet() const;
 
 private:
-    qint32 m_numberOfPictures;
-    QVector<qint32> m_frameNumbers;
-    QVector<QString> m_shortCaptions;
-    QVector<QString> m_longCaptions;
+    QVector<QString> m_chartLabels;
+    QVector<QString> m_variableLabels;
+    QVector<QVector<QString>> m_dimensionLabels;
+    QVector<quint32> m_dataPoints;
+    quint32 m_footNoteItemAddress;
+    bool m_additiveDataFlag;
+    QVector<bool> m_availableDisplayMethods;
+    qint32 m_defaultDisplayMethod;
+    quint32 m_colourSet;
 };
 
 // Custom streaming operator

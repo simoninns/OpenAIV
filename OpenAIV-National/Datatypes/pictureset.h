@@ -40,7 +40,7 @@ public:
     PictureSet &operator=(const PictureSet &) = default;
 
     PictureSet(const qint32 &numberOfPictures, const QVector<qint32> &frameNumbers,
-          QVector<QString> &shortCaptions, const QVector<QString> &longCaptions);
+          const QVector<QString> &shortCaptions, const QVector<QString> &longCaptions);
 
     qint32 numberOfPictures() const;
     QVector<qint32> frameNumbers() const;

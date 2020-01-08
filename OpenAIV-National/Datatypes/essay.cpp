@@ -24,8 +24,8 @@
 
 #include "essay.h"
 
-Essay::Essay(const QVector<qint32> &photoData, const qint32 &numberOfPages, QString &title,
-             QVector<QString> &pageTitles, const QVector<QString> &pages)
+Essay::Essay(const QVector<qint32> &photoData, const qint32 &numberOfPages, const QString &title,
+             const QVector<QString> &pageTitles, const QVector<QString> &pages)
             : m_photoData(photoData) ,m_numberOfPages(numberOfPages), m_title(title),
               m_pageTitles(pageTitles), m_pages(pages)
 {

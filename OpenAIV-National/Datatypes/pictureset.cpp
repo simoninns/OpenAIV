@@ -25,7 +25,7 @@
 #include "pictureset.h"
 
 PictureSet::PictureSet(const qint32 &numberOfPictures, const QVector<qint32> &frameNumbers,
-                       QVector<QString> &shortCaptions, const QVector<QString> &longCaptions)
+                       const QVector<QString> &shortCaptions, const QVector<QString> &longCaptions)
             : m_numberOfPictures(numberOfPictures) ,m_frameNumbers(frameNumbers),
               m_shortCaptions(shortCaptions), m_longCaptions(longCaptions)
 {

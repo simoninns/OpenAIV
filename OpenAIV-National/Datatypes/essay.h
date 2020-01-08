@@ -39,8 +39,8 @@ public:
     Essay(const Essay &) = default;
     Essay &operator=(const Essay &) = default;
 
-    Essay(const QVector<qint32> &photoData, const qint32 &numberOfPages, QString &title,
-          QVector<QString> &pageTitles, const QVector<QString> &pages);
+    Essay(const QVector<qint32> &photoData, const qint32 &numberOfPages, const QString &title,
+          const QVector<QString> &pageTitles, const QVector<QString> &pages);
 
     QVector<qint32> photoData() const;
     qint32 numberOfPages() const;

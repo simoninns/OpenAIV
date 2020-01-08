@@ -186,6 +186,7 @@ PictureSet DataFile::readPictureSetRecord(quint32 itemAddress)
 DataSet DataFile::readDataSetRecord(quint32 itemAddress)
 {
     if (!fileReady) return DataSet();
+
     qint32 targetFile = selectTargetDataFile(itemAddress);
     quint32 currentAddress = itemAddress;
 
@@ -195,7 +196,7 @@ DataSet DataFile::readDataSetRecord(quint32 itemAddress)
 
     // The footnotes reference (itemAddress) is in the dataset header bytes 2-5;
     uchar *uDatasetHeader = reinterpret_cast<uchar*>(datasetHeader.data());
-    quint32 footnotesAddress = uDatasetHeader[2] + (uDatasetHeader[3] << 8) +
+    quint32 footNoteItemAddress = uDatasetHeader[2] + (uDatasetHeader[3] << 8) +
             (uDatasetHeader[4] << 16) + (uDatasetHeader[5] << 24);
 
     // Read the 56 byte data chart header -----------------------------------------------------------------------------
@@ -203,11 +204,12 @@ DataSet DataFile::readDataSetRecord(quint32 itemAddress)
     uchar *uDataChartHeader = reinterpret_cast<uchar*>(dataChartHeader.data());
     currentAddress += 56;
 
-    // Number of variables in the dataset
-    QVector<qint32> numberOfVariables;
+    // Number of dimensions per variable in the dataset
+    // Note: size of numberOfDimensionsPerVariable vector is the number of variables available
+    QVector<qint32> numberOfDimensionsPerVariable;
     for (qint32 i = 2; i < 25; i++) {
         qint32 dimensions = uDataChartHeader[i];
-        if (dimensions != 0) numberOfVariables.append(dimensions);
+        if (dimensions != 0) numberOfDimensionsPerVariable.append(dimensions);
         else break; // stop at the first 0 byte value (end of variables)
     }
 
@@ -219,7 +221,7 @@ DataSet DataFile::readDataSetRecord(quint32 itemAddress)
     qint32 dataSize = uDataChartHeader[30];
 
     // Flag indicating if the data is additive/non-additive
-    bool addFlag = uDataChartHeader[31] == 0 ? false : true;
+    bool additiveDataFlag = uDataChartHeader[31] == 0 ? false : true;
 
     // The normalizing factor
     qint32 normalizingFactor = uDataChartHeader[32] + (uDataChartHeader[33] << 8) +
@@ -229,8 +231,22 @@ DataSet DataFile::readDataSetRecord(quint32 itemAddress)
     // ASCII 77 ('M') Multiply or ASCII 13 ('D') Divide
     qint32 normMultiplyOrDivide = uDataChartHeader[36];
 
+    bool multiplyValue = false;
+    if (normMultiplyOrDivide == 77) { // Should be 77 or 13
+        multiplyValue = true;
+    } else {
+        multiplyValue = false;
+    }
+
     // Scaling factor: ASCII 69 ('E') indicates exponent and ASCII 32 (' ') indicates value
     qint32 scalingFactor = uDataChartHeader[37];
+
+    bool scalingIsExponent = false;
+    if (scalingFactor == 69) { // Should be 69 or 32
+        scalingIsExponent = true;
+    } else {
+        scalingIsExponent = false;
+    }
 
     // Get the unused word
     quint32 unusedWord = uDataChartHeader[38] + (uDataChartHeader[39] << 8) +
@@ -251,36 +267,24 @@ DataSet DataFile::readDataSetRecord(quint32 itemAddress)
 
     // Show dataset header debug
     qDebug() << "Dataset header:";
-    qDebug() << "Footnotes address = " << footnotesAddress;
-    qDebug() << "numberOfVariables =" << numberOfVariables.size();
+    qDebug() << "Footnotes address = " << footNoteItemAddress;
+    qDebug() << "numberOfVariables =" << numberOfDimensionsPerVariable.size();
 
-    for (qint32 i = 0; i < numberOfVariables.size(); i++) {
-        qDebug().nospace() << "Variable #" << i << " has a dimension of " << numberOfVariables[i];
+    for (qint32 i = 0; i < numberOfDimensionsPerVariable.size(); i++) {
+        qDebug().nospace() << "Variable #" << i << " has a dimension of " << numberOfDimensionsPerVariable[i];
     }
 
     qDebug() << "dataAreaByteOffset =" << dataAreaByteOffset;
     qDebug() << "dataSize =" << dataSize << "bytes";
 
-    if (addFlag) qDebug() << "Chart data is additive";
+    if (additiveDataFlag) qDebug() << "Chart data is additive";
     else qDebug() << "Chart data is non-additive";
 
-    bool multiplyValue = false;
-    if (normMultiplyOrDivide == 77) { // Should be 77 or 13
-        qDebug() << "Values should be multiplied by scaling factor";
-        multiplyValue = true;
-    } else {
-        qDebug() << "Values should be divided by scaling factor";
-        multiplyValue = false;
-    }
+    if (multiplyValue) qDebug() << "Values should be multiplied by scaling factor";
+    else qDebug() << "Values should be divided by scaling factor";
 
-    bool scalingIsExponent = false;
-    if (scalingFactor == 69) { // Should be 69 or 32
-        qDebug() << "Scaling factor is an exponent";
-        scalingIsExponent = true;
-    } else {
-        qDebug() << "Scaling factor is a value";
-        scalingIsExponent = false;
-    }
+    if (scalingIsExponent) qDebug() << "Scaling factor is an exponent";
+    else qDebug() << "Scaling factor is a value";
 
     qDebug() << "unusedWord =" << unusedWord;
 
@@ -298,7 +302,7 @@ DataSet DataFile::readDataSetRecord(quint32 itemAddress)
     QByteArray buffer;
     buffer.resize(1024);
 
-    // Get the 3 chart labels (Title, axis, probably axis)
+    // Get the 3 chart labels (Title, primary unit, not sure)
     QVector<QString> chartLabels;
     for (qint32 i = 0; i < 3; i++) {
         buffer = readFile(currentAddress, 42, targetFile);
@@ -309,55 +313,68 @@ DataSet DataFile::readDataSetRecord(quint32 itemAddress)
     }
 
     // Get the variable abbreviations and labels (42 byte maximum BCPL strings)
-    // Each variable has a header string followed by the number of dimensions in numberOfVariables[x]
-    QVector<QString> variableHeaders;
+    // Each variable has a header string followed by the number of dimensions in numberOfDimensionsPerVariable[x]
     QVector<QString> variableLabels;
-    QVector<QString> variableLabelAbbreviations;
-    for (qint32 v = 0; v < numberOfVariables.size(); v++) {
+    variableLabels.resize(numberOfDimensionsPerVariable.size());
+
+    QVector<QVector<QString>> dimensionLabels;
+    QVector<QVector<QString>> dimensionLabelAbbreviations;
+
+    dimensionLabels.resize(variableLabels.size());
+    dimensionLabelAbbreviations.resize(variableLabels.size());
+
+    for (qint32 v = 0; v < numberOfDimensionsPerVariable.size(); v++) {
         // Get the variable header
         buffer = readFile(currentAddress, 42, targetFile);
         buffer[buffer[0]+1] = '\0'; // terminate the string
-        variableHeaders.append(QString::fromUtf8(buffer.mid(1)).trimmed()); // Remove trailing spaces and ignore first byte
+        variableLabels.append(QString::fromUtf8(buffer.mid(1)).trimmed()); // Remove trailing spaces and ignore first byte
         currentAddress += 42;
-        qDebug() << "Variable" << v << "header is" << variableHeaders.last();
+        qDebug() << "Variable" << v << "header is" << variableLabels.last();
 
         // Get the dimension names
-        for (qint32 i = 0; i < numberOfVariables[v]; i++) {
+        for (qint32 i = 0; i < numberOfDimensionsPerVariable[v]; i++) {
             buffer = readFile(currentAddress, 42, targetFile);
             buffer[buffer[0]+1] = '\0'; // terminate the string
-            variableLabels.append(QString::fromUtf8(buffer.mid(1)).trimmed()); // Remove trailing spaces and ignore first byte
-            variableLabelAbbreviations.append(QString::fromUtf8(buffer.mid(41, 1))); // Get the abbreviation at position 41 of the label
+            dimensionLabels[v].append(QString::fromUtf8(buffer.mid(1)).trimmed()); // Remove trailing spaces and ignore first byte
+            dimensionLabelAbbreviations[v].append(QString::fromUtf8(buffer.mid(41, 1))); // Get the abbreviation at position 41 of the label
             currentAddress += 42;
-            qDebug().nospace() << "  Label #" << i << ": " << variableLabelAbbreviations.last() << " = " << variableLabels.last();
+            qDebug().nospace() << "  Label #" << i << ": " << dimensionLabelAbbreviations[v].last() << " = " << dimensionLabels[v].last();
         }
     }
+
 
     // Read the chart data set's data --------------------------------------------------------------------------------
 
-    // One variable at a time
-    for (qint32 v = 0; v < numberOfVariables.size(); v++) {
-        // One dimension at a time
-        for (qint32 i = 0; i < numberOfVariables[v]; i++) {
-            buffer = readFile(currentAddress, dataSize, targetFile);
-            uchar *uChartData = reinterpret_cast<uchar*>(buffer.data());
+    // Calculate the number of data points in the dataset
+    qint32 numberOfDataPoints = 1;
+    for (qint32 i = 0; i < numberOfDimensionsPerVariable.size(); i++) { // 0 to number of variables - 1
+        numberOfDataPoints *= dimensionLabels[i].size();
+    }
+    qDebug() << "Number of datapoints in the dataset =" << numberOfDataPoints;
 
-            // Retrieve the next value based on the expected dataSize (in bytes)
-            quint32 dataValue = 0;
-            if (dataSize == 1) dataValue = uChartData[0]; // 8 bit value
-            else if (dataSize == 2) dataValue = uChartData[0] + (uChartData[1] << 8); // 16 bit value
-            else if (dataSize == 4) dataValue = uChartData[0] + (uChartData[1] << 8) +
-                    (uChartData[2] << 16) + (uChartData[3] << 24); // 32 bit value
-            else qFatal("Data value width in chart dataset is invalid - something has gone wrong!");
-            currentAddress += dataSize;
+    QVector<quint32> dataPoints(numberOfDataPoints);
 
-            // Scale the retrieved value
-            dataValue = scaleValue(dataValue, normalizingFactor, multiplyValue, scalingIsExponent);
+    for (qint32 i = 0; i < numberOfDataPoints; i++) {
+        buffer = readFile(currentAddress, dataSize, targetFile);
+        uchar *uChartData = reinterpret_cast<uchar*>(buffer.data());
 
-            qDebug() << "Variable" << variableHeaders[v] << "dimension" << variableLabels[i] << "=" << dataValue;
-        }
+        // Retrieve the next value based on the expected dataSize (in bytes)
+        quint32 dataValue = 0;
+        if (dataSize == 1) dataValue = uChartData[0]; // 8 bit value
+        else if (dataSize == 2) dataValue = uChartData[0] + (uChartData[1] << 8); // 16 bit value
+        else if (dataSize == 4) dataValue = uChartData[0] + (uChartData[1] << 8) +
+                (uChartData[2] << 16) + (uChartData[3] << 24); // 32 bit value
+        else qFatal("Data value width in chart dataset is invalid - something has gone wrong!");
+        currentAddress += dataSize;
+
+        // Scale the retrieved value and store
+        dataPoints[i] = scaleValue(dataValue, normalizingFactor, multiplyValue, scalingIsExponent);
+        qDebug().nospace() << "dataPoint[" << i << "] = " << dataPoints[i];
     }
 
-    return DataSet();
+    return DataSet(chartLabels, variableLabels, dimensionLabels, dataPoints,
+                   footNoteItemAddress, additiveDataFlag, availableDisplayMethods,
+                   defaultDisplayMethod, colourSet);
 }
 
 // Private methods ----------------------------------------------------------------------------------------------------
