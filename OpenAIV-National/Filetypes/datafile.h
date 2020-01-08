@@ -54,6 +54,7 @@ private:
 
     void open(QString filename1, QString filename2);
     void close();
+    quint32 scaleValue(quint32 dataValue, quint32 normalizingFactor, bool multiplyValue, bool scalingIsExponent);
     QByteArray readFile(quint32 filePointer, qint32 dataSize, qint32 fileNumber);
     qint32 selectTargetDataFile(quint32 &itemAddress);
 };

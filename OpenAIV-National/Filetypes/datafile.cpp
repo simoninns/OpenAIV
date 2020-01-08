@@ -35,37 +35,6 @@ DataFile::~DataFile()
     close();
 }
 
-void DataFile::open(QString filename1, QString filename2)
-{
-    // Open the data file
-    qDebug() << "Opening data file from" << filename1 << "and" << filename2;
-
-    fileHandle1.setFileName(filename1);
-    if (!fileHandle1.open(QIODevice::ReadOnly)) {
-        // Failed to open file
-        qDebug() << "Data 1 open failed";
-        fileReady = false;
-    }
-
-    fileHandle2.setFileName(filename2);
-    if (!fileHandle2.open(QIODevice::ReadOnly)) {
-        // Failed to open file
-        qDebug() << "Data 2 open failed";
-        fileReady = false;
-    }
-
-    qDebug() << "Data file 1 and 2 opened";
-    fileReady = true;
-}
-
-void DataFile::close()
-{
-    fileHandle1.close();
-    fileHandle2.close();
-    fileReady = false;
-    qDebug() << "Data file closed";
-}
-
 bool DataFile::isFileReady()
 {
     return fileReady;
@@ -218,17 +187,16 @@ DataSet DataFile::readDataSetRecord(quint32 itemAddress)
 {
     if (!fileReady) return DataSet();
     qint32 targetFile = selectTargetDataFile(itemAddress);
-
     quint32 currentAddress = itemAddress;
 
     // Read the 28 byte dataset header
     QByteArray datasetHeader = readFile(currentAddress, 28, targetFile);
     currentAddress += 28;
 
-    // This isn't really clear, but it looks like the footnotes reference is in the datasetHeader...
+    // The footnotes reference (itemAddress) is in the dataset header bytes 2-5;
     uchar *uDatasetHeader = reinterpret_cast<uchar*>(datasetHeader.data());
-    quint32 footnotesAddress = uDatasetHeader[2] + (uDatasetHeader[3] << 8) + (uDatasetHeader[4] << 16) + (uDatasetHeader[5] << 24);
-    qDebug() << "Footnotes address = " << footnotesAddress;
+    quint32 footnotesAddress = uDatasetHeader[2] + (uDatasetHeader[3] << 8) +
+            (uDatasetHeader[4] << 16) + (uDatasetHeader[5] << 24);
 
     // Read the 56 byte data chart header -----------------------------------------------------------------------------
     QByteArray dataChartHeader = readFile(currentAddress, 56, targetFile);
@@ -244,7 +212,8 @@ DataSet DataFile::readDataSetRecord(quint32 itemAddress)
     }
 
     // The byte offset to the data area
-    qint32 dataAreaByteOffset = uDataChartHeader[26] + (uDataChartHeader[27] << 8) + (uDataChartHeader[28] << 16) + (uDataChartHeader[29] << 24);
+    qint32 dataAreaByteOffset = uDataChartHeader[26] + (uDataChartHeader[27] << 8) +
+            (uDataChartHeader[28] << 16) + (uDataChartHeader[29] << 24);
 
     // Number of bytes per datum in the data area
     qint32 dataSize = uDataChartHeader[30];
@@ -253,7 +222,8 @@ DataSet DataFile::readDataSetRecord(quint32 itemAddress)
     bool addFlag = uDataChartHeader[31] == 0 ? false : true;
 
     // The normalizing factor
-    qint32 normalizingFactor = uDataChartHeader[32] + (uDataChartHeader[33] << 8) + (uDataChartHeader[34] << 16) + (uDataChartHeader[35] << 24);
+    qint32 normalizingFactor = uDataChartHeader[32] + (uDataChartHeader[33] << 8) +
+            (uDataChartHeader[34] << 16) + (uDataChartHeader[35] << 24);
 
     // Should the data be normalized by multiplication or division by the normalizing factor?
     // ASCII 77 ('M') Multiply or ASCII 13 ('D') Divide
@@ -263,7 +233,8 @@ DataSet DataFile::readDataSetRecord(quint32 itemAddress)
     qint32 scalingFactor = uDataChartHeader[37];
 
     // Get the unused word
-    quint32 unusedWord = uDataChartHeader[38] + (uDataChartHeader[39] << 8) + (uDataChartHeader[40] << 16) + (uDataChartHeader[41] << 24);
+    quint32 unusedWord = uDataChartHeader[38] + (uDataChartHeader[39] << 8) +
+            (uDataChartHeader[40] << 16) + (uDataChartHeader[41] << 24);
 
     // 10 Flags indicating which types of chart are appropriate for the dataset
     QVector<bool> availableDisplayMethods; // 10 flags
@@ -280,6 +251,7 @@ DataSet DataFile::readDataSetRecord(quint32 itemAddress)
 
     // Show dataset header debug
     qDebug() << "Dataset header:";
+    qDebug() << "Footnotes address = " << footnotesAddress;
     qDebug() << "numberOfVariables =" << numberOfVariables.size();
 
     for (qint32 i = 0; i < numberOfVariables.size(); i++) {
@@ -288,16 +260,27 @@ DataSet DataFile::readDataSetRecord(quint32 itemAddress)
 
     qDebug() << "dataAreaByteOffset =" << dataAreaByteOffset;
     qDebug() << "dataSize =" << dataSize << "bytes";
-    qDebug() << "addFlag =" << addFlag;
-    qDebug() << "normalizingFactor =" << normalizingFactor;
 
-    if (normMultiplyOrDivide == 77) qDebug() << "normMultiplyOrDivide = multiply";
-    else if (normMultiplyOrDivide == 13) qDebug() << "normMultiplyOrDivide = divide";
-    else qDebug() << "normMultiplyOrDivide = ERROR";
+    if (addFlag) qDebug() << "Chart data is additive";
+    else qDebug() << "Chart data is non-additive";
 
-    if (scalingFactor == 69) qDebug() << "scalingFactor = exponent";
-    else if (scalingFactor == 32) qDebug() << "scalingFactor = value";
-    else qDebug() << "scalingFactor = ERROR";
+    bool multiplyValue = false;
+    if (normMultiplyOrDivide == 77) { // Should be 77 or 13
+        qDebug() << "Values should be multiplied by scaling factor";
+        multiplyValue = true;
+    } else {
+        qDebug() << "Values should be divided by scaling factor";
+        multiplyValue = false;
+    }
+
+    bool scalingIsExponent = false;
+    if (scalingFactor == 69) { // Should be 69 or 32
+        qDebug() << "Scaling factor is an exponent";
+        scalingIsExponent = true;
+    } else {
+        qDebug() << "Scaling factor is a value";
+        scalingIsExponent = false;
+    }
 
     qDebug() << "unusedWord =" << unusedWord;
 
@@ -349,12 +332,7 @@ DataSet DataFile::readDataSetRecord(quint32 itemAddress)
         }
     }
 
-    // We should now be at the byte area (as indicated by the header)
-    qDebug() << "Current address is =" << currentAddress - itemAddress;
-
-    //  Read the chart data set's data --------------------------------------------------------------------------------
-
-    // This is mostly incorrect right now - just a guess
+    // Read the chart data set's data --------------------------------------------------------------------------------
 
     // One variable at a time
     for (qint32 v = 0; v < numberOfVariables.size(); v++) {
@@ -363,33 +341,17 @@ DataSet DataFile::readDataSetRecord(quint32 itemAddress)
             buffer = readFile(currentAddress, dataSize, targetFile);
             uchar *uChartData = reinterpret_cast<uchar*>(buffer.data());
 
-//            if (normMultiplyOrDivide == 77 && scalingFactor == 69) qDebug() << "Values are - multiply / exponent";
-//            else if (normMultiplyOrDivide == 13 && scalingFactor == 69) qDebug() << "Values are - Divide / exponent";
-//            else if (normMultiplyOrDivide == 77 && scalingFactor == 32) qDebug() << "Values are - multiply / value";
-//            else if (normMultiplyOrDivide == 13 && scalingFactor == 32) qDebug() << "Values are - Divide / value";
-//            else qFatal("multiply/divide exponent/value - something went really wrong!");
-
+            // Retrieve the next value based on the expected dataSize (in bytes)
             quint32 dataValue = 0;
-            if (dataSize == 1) {
-                dataValue = uChartData[0]; // 8 bit value
-                currentAddress += 1;
-            } else if (dataSize == 2) {
-                dataValue = uChartData[0] + (uChartData[1] << 8); // 16 bit value
-                currentAddress += 2;
-            } else if (dataSize == 4) {
-                dataValue = uChartData[0] + (uChartData[1] << 8) +
-                        (uChartData[2] << 16) + (uChartData[3] << 24); // 32 bit value
-                currentAddress += 4;
-            } else {
-                qFatal("Data value width in chart dataset is invalid - something has gone wrong!");
-            }
-            qDebug() << "Got dataValue" << dataValue << "normalizingFactor" << normalizingFactor;
+            if (dataSize == 1) dataValue = uChartData[0]; // 8 bit value
+            else if (dataSize == 2) dataValue = uChartData[0] + (uChartData[1] << 8); // 16 bit value
+            else if (dataSize == 4) dataValue = uChartData[0] + (uChartData[1] << 8) +
+                    (uChartData[2] << 16) + (uChartData[3] << 24); // 32 bit value
+            else qFatal("Data value width in chart dataset is invalid - something has gone wrong!");
+            currentAddress += dataSize;
 
-            if (normMultiplyOrDivide == 77 && scalingFactor == 69) dataValue = dataValue * qPow(10, normalizingFactor); // Multiply / exponent
-            else if (normMultiplyOrDivide == 13 && scalingFactor == 69) dataValue = dataValue / qPow(10, normalizingFactor); // Divide / exponent
-            else if (normMultiplyOrDivide == 77 && scalingFactor == 32) dataValue = dataValue * normalizingFactor; // Multiply / value
-            else if (normMultiplyOrDivide == 13 && scalingFactor == 32) dataValue = dataValue / normalizingFactor; // Divide / value
-            else dataValue = 0;
+            // Scale the retrieved value
+            dataValue = scaleValue(dataValue, normalizingFactor, multiplyValue, scalingIsExponent);
 
             qDebug() << "Variable" << variableHeaders[v] << "dimension" << variableLabels[i] << "=" << dataValue;
         }
@@ -399,6 +361,49 @@ DataSet DataFile::readDataSetRecord(quint32 itemAddress)
 }
 
 // Private methods ----------------------------------------------------------------------------------------------------
+
+// Method to scale a chart value according to the scaling flags
+quint32 DataFile::scaleValue(quint32 dataValue, quint32 normalizingFactor, bool multiplyValue, bool scalingIsExponent)
+{
+    if (multiplyValue && scalingIsExponent) dataValue = dataValue * qPow(10, normalizingFactor); // Multiply / exponent
+    else if (!multiplyValue && scalingIsExponent) dataValue = dataValue / qPow(10, normalizingFactor); // Divide / exponent
+    else if (multiplyValue && !scalingIsExponent) dataValue = dataValue * normalizingFactor; // Multiply / value
+    else if (!multiplyValue && !scalingIsExponent) dataValue = dataValue / normalizingFactor; // Divide / value
+    else dataValue = 0;
+
+    return dataValue;
+}
+
+void DataFile::open(QString filename1, QString filename2)
+{
+    // Open the data file
+    qDebug() << "Opening data file from" << filename1 << "and" << filename2;
+
+    fileHandle1.setFileName(filename1);
+    if (!fileHandle1.open(QIODevice::ReadOnly)) {
+        // Failed to open file
+        qDebug() << "Data 1 open failed";
+        fileReady = false;
+    }
+
+    fileHandle2.setFileName(filename2);
+    if (!fileHandle2.open(QIODevice::ReadOnly)) {
+        // Failed to open file
+        qDebug() << "Data 2 open failed";
+        fileReady = false;
+    }
+
+    qDebug() << "Data file 1 and 2 opened";
+    fileReady = true;
+}
+
+void DataFile::close()
+{
+    fileHandle1.close();
+    fileHandle2.close();
+    fileReady = false;
+    qDebug() << "Data file closed";
+}
 
 // Method to read byte data from the data file
 QByteArray DataFile::readFile(quint32 filePointer, qint32 dataSize, qint32 fileNumber)
