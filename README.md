@@ -3,8 +3,12 @@ Open-source implementation of the BBC AIV Domesday retrieval software.
 
 Note: This is an early work in progress and is not for general use.
 
+For all information about this project and technical notes on how the data is organised on the Domesday LaserDiscs, please see the project's wiki:
+
+https://github.com/simoninns/OpenAIV/wiki
+
 # Motivation
-To allow access to the wealth of information provided by the BBC Domesday project LaserDiscs, but in a modern, accessible form.
+To allow access to the wealth of information provided by the BBC Domesday project's National and Community LaserDiscs, but in a modern, accessible and (above all) open form.
 
 # Author
 OpenAIV is written and maintained by Simon Inns
