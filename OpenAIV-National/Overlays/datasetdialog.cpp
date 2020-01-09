@@ -191,72 +191,74 @@ void DataSetDialog::generateDataView(DataSet dataSet)
     QVector<qreal> primaryVariableTotals;
     primaryVariableTotals.fill(0, dataSet.dimensionLabels()[primaryVariable].size());
 
-    QVector<qint32> dimCounter;
-    dimCounter.fill(0, dataSet.variableLabels().size());
+    // Initialise the dimension counters - Note: Due to the dataPoint organisation
+    // these should be initialised at the maximum for each variable in order for the
+    // dimensions to be processed in the correct order
+    QVector<qint32> dimensionCounter(dataSet.variableLabels().size());
+    for (qint32 i = 0; i < dataSet.variableLabels().size(); i++) {
+        dimensionCounter[i] = dataSet.dimensionLabels()[i].size() - 1;
+    }
 
     // Display the n-dimensional data according to the dimension labeling
-    for (qint32 dp = 0; dp < dataSet.dataPoints().size(); dp++) {
+
+    // For each dataPoint, work out the dimensions it belongs to and sum accordingly
+    for (qint32 dataPointCounter = 0; dataPointCounter < dataSet.dataPoints().size(); dataPointCounter++) {
         QString debugS;
-        for (qint32 cat = 0; cat < dataSet.variableLabels().size(); cat++) {
-            debugS += dataSet.dimensionLabels()[cat][dimCounter[cat]] + " - ";
+        for (qint32 chartVariable = 0; chartVariable < dataSet.variableLabels().size(); chartVariable++) {
+            debugS += dataSet.dimensionLabels()[chartVariable][dimensionCounter[chartVariable]] + " - ";
         }
 
-        debugS += "dataPoint = " + QString::number(dataSet.dataPoints()[dp], 'f', 2);
+        debugS += "dataPoint = " + QString::number(dataSet.dataPoints()[dataPointCounter], 'f', 2);
 
-        for (qint32 cat = 0; cat < dataSet.variableLabels().size(); cat++) {
-            if (cat == 0) {
-                dimCounter[cat]++;
+        // Loop throught the available chart variables
+        for (qint32 chartVariable = 0; chartVariable < dataSet.variableLabels().size(); chartVariable++) {
+            if (chartVariable == 0) {
+                dimensionCounter[chartVariable]++;
 
-                if (dimCounter[cat] > dataSet.dimensionLabels()[cat].size() - 1) {
-                    dimCounter[cat] = 0;
-                    if (cat < dataSet.variableLabels().size() - 1) dimCounter[cat + 1]++;
+                if (dimensionCounter[chartVariable] > dataSet.dimensionLabels()[chartVariable].size() - 1) {
+                    dimensionCounter[chartVariable] = 0;
+                    if (chartVariable < dataSet.variableLabels().size() - 1) dimensionCounter[chartVariable + 1]++;
                 }
             } else {
-                if (dimCounter[cat] > dataSet.dimensionLabels()[cat].size() - 1) {
-                    dimCounter[cat] = 0;
-                    if (cat < dataSet.variableLabels().size() - 1) dimCounter[cat + 1]++;
+                if (dimensionCounter[chartVariable] > dataSet.dimensionLabels()[chartVariable].size() - 1) {
+                    dimensionCounter[chartVariable] = 0;
+                    if (chartVariable < dataSet.variableLabels().size() - 1) dimensionCounter[chartVariable + 1]++;
                 }
             }
         }
 
-//        for (qint32 cat = dataSet.variableLabels().size() - 1; cat >= 0; cat--) {
-//            if (cat == dataSet.variableLabels().size() - 1) {
-//                dimCounter[cat]++;
-
-//                if (dimCounter[cat] > dataSet.dimensionLabels()[cat].size() - 1) {
-//                    dimCounter[cat] = 0;
-//                    if (cat != 0) dimCounter[cat - 1]++;
-//                }
-//            } else {
-//                if (dimCounter[cat] > dataSet.dimensionLabels()[cat].size() - 1) {
-//                    dimCounter[cat] = 0;
-//                    if (cat != 0) dimCounter[cat - 1]++;
-//                }
-//            }
-//        }
-
-        qDebug() << "DP" << dp << ": " << debugS;
+        //qDebug() << "DP" << dataPointCounter << ": " << debugS;
         debugS.clear();
 
         // Add data point to primary variable totals
-        primaryVariableTotals[dimCounter[primaryVariable]] += dataSet.dataPoints()[dp];
+        primaryVariableTotals[dimensionCounter[primaryVariable]] += dataSet.dataPoints()[dataPointCounter];
     }
 
-    // Display the resulting data
+    // Disable editing of the table widget
+    ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+    // Set the required number of columns and rows (including title and total)
+    ui->tableWidget->setRowCount(primaryVariableTotals.size() + 2);
+    ui->tableWidget->setColumnCount(2);
+
+    // Display the resulting data in the tableWidget
     qDebug() << "Result for" << dataSet.variableLabels()[primaryVariable];
+    ui->tableWidget->setItem(0, 0, new QTableWidgetItem(dataSet.variableLabels()[primaryVariable]));
+    ui->tableWidget->setItem(0, 1, new QTableWidgetItem(dataSet.chartLabels()[1]));
+    ui->tableWidget->item(0, 0)->setBackgroundColor(Qt::lightGray);
+    ui->tableWidget->item(0, 1)->setBackgroundColor(Qt::lightGray);
     qreal dataSum = 0;
     for (qint32 i = 0; i < primaryVariableTotals.size(); i++) {
         qDebug() << dataSet.dimensionLabels()[primaryVariable][i] << "=" << QString::number(primaryVariableTotals[i], 'f', 2);
         dataSum += primaryVariableTotals[i];
+        ui->tableWidget->setItem(i + 1, 0, new QTableWidgetItem(dataSet.dimensionLabels()[primaryVariable][i]));
+        ui->tableWidget->setItem(i + 1, 1, new QTableWidgetItem(QString::number(primaryVariableTotals[i], 'f', 2)));
     }
     qDebug() << "Datasum =" << QString::number(dataSum, 'f', 2);
-
-    // Disable editing
-    ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
-
-    ui->tableWidget->setRowCount(10);
-    ui->tableWidget->setColumnCount(3);
-
+    qint32 finalRow = static_cast<qint32>(primaryVariableTotals.size()) + 1;
+    ui->tableWidget->setItem(finalRow, 0, new QTableWidgetItem("TOTAL"));
+    ui->tableWidget->setItem(finalRow, 1, new QTableWidgetItem(QString::number(dataSum, 'f', 2)));
+    ui->tableWidget->item(finalRow, 1)->setTextColor(Qt::darkGreen);
 }
 
 // Method to handle signal from the chart dimension checkboxes

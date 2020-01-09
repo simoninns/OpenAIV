@@ -207,6 +207,8 @@ DataSet DataFile::readDataSetRecord(quint32 itemAddress)
     // Number of dimensions per variable in the dataset
     // Note: size of numberOfDimensionsPerVariable vector is the number of variables available
     QVector<qint32> numberOfDimensionsPerVariable;
+    qDebug() << "uChartHeader[0] =" << uDataChartHeader[0];
+    qDebug() << "uChartHeader[1] =" << uDataChartHeader[1];
     for (qint32 i = 2; i < 25; i++) {
         qint32 dimensions = uDataChartHeader[i];
         if (dimensions != 0) numberOfDimensionsPerVariable.append(dimensions);
