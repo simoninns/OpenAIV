@@ -72,7 +72,7 @@ void DataSetDialog::showDataSet(Names namesRecord)
     // variable for the rendered view of the data
     variableSelectionGroupBoxLayout = new QVBoxLayout;
     variableSelectionGroupBox = new QGroupBox(this);
-    variableSelectionGroupBox->setTitle("Primary variable");
+    variableSelectionGroupBox->setTitle("Primary variable:");
     for (qint32 i = 0; i < dataSet.variableLabels().size(); i++) {
         variableSelectionRadioButtons.append(new QRadioButton(this));
         variableSelectionRadioButtons.last()->setText(dataSet.variableLabels()[i]);
@@ -134,7 +134,7 @@ void DataSetDialog::showDataSet(Names namesRecord)
     }
 
     // Generate the data views
-    generateDataView();
+    generateDataView(dataSet);
 }
 
 // Method to remove all dynamically created objects from the dialogue
@@ -175,15 +175,72 @@ void DataSetDialog::clearDataSet()
 }
 
 // Method to generate a view of the data based on the user's selections
-void DataSetDialog::generateDataView(void)
+void DataSetDialog::generateDataView(DataSet dataSet)
 {
     qDebug() << "Generating data view in table widget";
+    qDebug() << "  Dataset name:" << dataSet.chartLabels()[0];
+    qDebug() << "  Primary unit:" << dataSet.chartLabels()[1];
+    qDebug() << "  Total data points:" << dataSet.dataPoints().size();
+
+    // Display the primary variable label
+    qint32 primaryVariable = 0;
+    for (qint32 i = 0; i < dataSet.variableLabels().size(); i++) {
+        if (variableSelectionRadioButtons[i]->isChecked()) primaryVariable = i;
+    }
+    qDebug() << "  Primary variable:" << dataSet.variableLabels()[primaryVariable];
+    QVector<qreal> primaryVariableTotals;
+    primaryVariableTotals.fill(0, dataSet.dimensionLabels()[primaryVariable].size());
+
+    QVector<qint32> dimCounter;
+    dimCounter.fill(0, dataSet.variableLabels().size());
+
+    // Display the n-dimensional data according to the dimension labeling
+    for (qint32 dp = 0; dp < dataSet.dataPoints().size(); dp++) {
+        QString debugS;
+        for (qint32 cat = 0; cat < dataSet.variableLabels().size(); cat++) {
+            debugS += dataSet.dimensionLabels()[cat][dimCounter[cat]] + " - ";
+        }
+
+        debugS += "dataPoint = " + QString::number(dataSet.dataPoints()[dp], 'f', 2);
+
+        for (qint32 cat = dataSet.variableLabels().size() - 1; cat >= 0; cat--) {
+            if (cat == dataSet.variableLabels().size() - 1) {
+                dimCounter[cat]++;
+
+                if (dimCounter[cat] > dataSet.dimensionLabels()[cat].size() - 1) {
+                    dimCounter[cat] = 0;
+                    if (cat != 0) dimCounter[cat - 1]++;
+                }
+            } else {
+                if (dimCounter[cat] > dataSet.dimensionLabels()[cat].size() - 1) {
+                    dimCounter[cat] = 0;
+                    if (cat != 0) dimCounter[cat - 1]++;
+                }
+            }
+        }
+
+        qDebug() << "DP" << dp << ": " << debugS;
+        debugS.clear();
+
+        // Add data point to primary variable totals
+        primaryVariableTotals[dimCounter[primaryVariable]] += dataSet.dataPoints()[dp];
+    }
+
+    // Display the resulting data
+    qDebug() << "Result for" << dataSet.variableLabels()[primaryVariable];
+    qreal dataSum = 0;
+    for (qint32 i = 0; i < primaryVariableTotals.size(); i++) {
+        qDebug() << dataSet.dimensionLabels()[primaryVariable][i] << "=" << QString::number(primaryVariableTotals[i], 'f', 2);
+        dataSum += primaryVariableTotals[i];
+    }
+    qDebug() << "Datasum =" << QString::number(dataSum, 'f', 2);
 
     // Disable editing
     ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     ui->tableWidget->setRowCount(10);
     ui->tableWidget->setColumnCount(3);
+
 }
 
 // Method to handle signal from the chart dimension checkboxes

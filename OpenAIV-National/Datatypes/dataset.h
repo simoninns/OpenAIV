@@ -40,7 +40,7 @@ public:
     DataSet &operator=(const DataSet &) = default;
 
     DataSet(const QVector<QString> &chartLabels, const QVector<QString> &variableLabels,
-            const QVector<QVector<QString>> &dimensionLabels, const QVector<quint32> &dataPoints,
+            const QVector<QVector<QString>> &dimensionLabels, const QVector<qreal> &dataPoints,
             const quint32 &footNoteItemAddress, const bool &additiveDataFlag,
             const QVector<bool> &availableDisplayMethods, const qint32 &defaultDisplayMethod,
             const quint32 &colourSet);
@@ -48,7 +48,7 @@ public:
     QVector<QString> chartLabels() const;
     QVector<QString> variableLabels() const;
     QVector<QVector<QString>> dimensionLabels() const;
-    QVector<quint32> dataPoints() const;
+    QVector<qreal> dataPoints() const;
     quint32 footNoteItemAddress() const;
     bool additiveDataFlag() const;
     QVector<bool> availableDisplayMethods() const;
@@ -59,7 +59,7 @@ private:
     QVector<QString> m_chartLabels;
     QVector<QString> m_variableLabels;
     QVector<QVector<QString>> m_dimensionLabels;
-    QVector<quint32> m_dataPoints;
+    QVector<qreal> m_dataPoints;
     quint32 m_footNoteItemAddress;
     bool m_additiveDataFlag;
     QVector<bool> m_availableDisplayMethods;

@@ -347,12 +347,12 @@ DataSet DataFile::readDataSetRecord(quint32 itemAddress)
 
     // Calculate the number of data points in the dataset
     qint32 numberOfDataPoints = 1;
-    for (qint32 i = 0; i < numberOfDimensionsPerVariable.size(); i++) { // 0 to number of variables - 1
+    for (qint32 i = 0; i < numberOfDimensionsPerVariable.size(); i++) {
         numberOfDataPoints *= dimensionLabels[i].size();
     }
     qDebug() << "Number of datapoints in the dataset =" << numberOfDataPoints;
 
-    QVector<quint32> dataPoints(numberOfDataPoints);
+    QVector<qreal> dataPoints(numberOfDataPoints);
 
     for (qint32 i = 0; i < numberOfDataPoints; i++) {
         buffer = readFile(currentAddress, dataSize, targetFile);
@@ -369,7 +369,7 @@ DataSet DataFile::readDataSetRecord(quint32 itemAddress)
 
         // Scale the retrieved value and store
         dataPoints[i] = scaleValue(dataValue, normalizingFactor, multiplyValue, scalingIsExponent);
-        qDebug().nospace() << "dataPoint[" << i << "] = " << dataPoints[i];
+        //qDebug().nospace() << "dataPoint[" << i << "] = " << dataPoints[i];
     }
 
     return DataSet(chartLabels, variableLabels, dimensionLabels, dataPoints,
@@ -380,15 +380,18 @@ DataSet DataFile::readDataSetRecord(quint32 itemAddress)
 // Private methods ----------------------------------------------------------------------------------------------------
 
 // Method to scale a chart value according to the scaling flags
+// and convert the result to a qreal FP value
 quint32 DataFile::scaleValue(quint32 dataValue, quint32 normalizingFactor, bool multiplyValue, bool scalingIsExponent)
 {
-    if (multiplyValue && scalingIsExponent) dataValue = dataValue * qPow(10, normalizingFactor); // Multiply / exponent
-    else if (!multiplyValue && scalingIsExponent) dataValue = dataValue / qPow(10, normalizingFactor); // Divide / exponent
-    else if (multiplyValue && !scalingIsExponent) dataValue = dataValue * normalizingFactor; // Multiply / value
-    else if (!multiplyValue && !scalingIsExponent) dataValue = dataValue / normalizingFactor; // Divide / value
-    else dataValue = 0;
+    qreal result = 0;
 
-    return dataValue;
+    if (multiplyValue && scalingIsExponent) result = static_cast<qreal>(dataValue) * qPow(10, static_cast<qreal>(normalizingFactor)); // Multiply / exponent
+    else if (!multiplyValue && scalingIsExponent) result = static_cast<qreal>(dataValue) / qPow(10, static_cast<qreal>(normalizingFactor)); // Divide / exponent
+    else if (multiplyValue && !scalingIsExponent) result = static_cast<qreal>(dataValue) * static_cast<qreal>(normalizingFactor); // Multiply / value
+    else if (!multiplyValue && !scalingIsExponent) result = static_cast<qreal>(dataValue) / static_cast<qreal>(normalizingFactor); // Divide / value
+    else result = 0;
+
+    return result;
 }
 
 void DataFile::open(QString filename1, QString filename2)

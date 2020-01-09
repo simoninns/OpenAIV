@@ -25,7 +25,7 @@
 #include "dataset.h"
 
 DataSet::DataSet(const QVector<QString> &chartLabels, const QVector<QString> &variableLabels,
-                 const QVector<QVector<QString>> &dimensionLabels, const QVector<quint32> &dataPoints,
+                 const QVector<QVector<QString>> &dimensionLabels, const QVector<qreal> &dataPoints,
                  const quint32 &footNoteItemAddress, const bool &additiveDataFlag,
                  const QVector<bool> &availableDisplayMethods, const qint32 &defaultDisplayMethod,
                  const quint32 &colourSet)
@@ -67,7 +67,7 @@ QVector<QVector<QString>> DataSet::dimensionLabels() const
     return m_dimensionLabels;
 }
 
-QVector<quint32> DataSet::dataPoints() const
+QVector<qreal> DataSet::dataPoints() const
 {
     return m_dataPoints;
 }

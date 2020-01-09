@@ -64,7 +64,7 @@ private:
     QVector<QVector<QCheckBox*>> dimensionCheckBoxes;
 
     void clearDataSet();
-    void generateDataView(void);
+    void generateDataView(DataSet dataSet);
 };
 
 #endif // DATASETDIALOG_H
