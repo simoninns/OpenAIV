@@ -36,6 +36,7 @@ DataSetDialog::~DataSetDialog()
 {
     // Ensure dynamic objects are cleared before exit
     clearDataSet();
+
     delete ui;
 }
 
