@@ -51,6 +51,7 @@ public:
 
 private slots:
     void dimensionCheckBoxChanged(bool state);
+    void variableRadioButtonChanged(bool state);
 
 private:
     Ui::DataSetDialog *ui;
@@ -63,8 +64,11 @@ private:
     QVector<QVBoxLayout*> variableGroupBoxLayouts;
     QVector<QVector<QCheckBox*>> dimensionCheckBoxes;
 
+    qint32 primaryVariable;
+    DataSet dataSet;
+
     void clearDataSet();
-    void generateDataView(DataSet dataSet);
+    void generateDataView();
 };
 
 #endif // DATASETDIALOG_H
