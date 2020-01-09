@@ -203,21 +203,37 @@ void DataSetDialog::generateDataView(DataSet dataSet)
 
         debugS += "dataPoint = " + QString::number(dataSet.dataPoints()[dp], 'f', 2);
 
-        for (qint32 cat = dataSet.variableLabels().size() - 1; cat >= 0; cat--) {
-            if (cat == dataSet.variableLabels().size() - 1) {
+        for (qint32 cat = 0; cat < dataSet.variableLabels().size(); cat++) {
+            if (cat == 0) {
                 dimCounter[cat]++;
 
                 if (dimCounter[cat] > dataSet.dimensionLabels()[cat].size() - 1) {
                     dimCounter[cat] = 0;
-                    if (cat != 0) dimCounter[cat - 1]++;
+                    if (cat < dataSet.variableLabels().size() - 1) dimCounter[cat + 1]++;
                 }
             } else {
                 if (dimCounter[cat] > dataSet.dimensionLabels()[cat].size() - 1) {
                     dimCounter[cat] = 0;
-                    if (cat != 0) dimCounter[cat - 1]++;
+                    if (cat < dataSet.variableLabels().size() - 1) dimCounter[cat + 1]++;
                 }
             }
         }
+
+//        for (qint32 cat = dataSet.variableLabels().size() - 1; cat >= 0; cat--) {
+//            if (cat == dataSet.variableLabels().size() - 1) {
+//                dimCounter[cat]++;
+
+//                if (dimCounter[cat] > dataSet.dimensionLabels()[cat].size() - 1) {
+//                    dimCounter[cat] = 0;
+//                    if (cat != 0) dimCounter[cat - 1]++;
+//                }
+//            } else {
+//                if (dimCounter[cat] > dataSet.dimensionLabels()[cat].size() - 1) {
+//                    dimCounter[cat] = 0;
+//                    if (cat != 0) dimCounter[cat - 1]++;
+//                }
+//            }
+//        }
 
         qDebug() << "DP" << dp << ": " << debugS;
         debugS.clear();
