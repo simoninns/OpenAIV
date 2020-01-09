@@ -25,11 +25,18 @@
 #include "datasetdialog.h"
 #include "ui_datasetdialog.h"
 
+// TODO: Add other graphing types
+// support non-additive data correctly
+// Support save as CSV from table view
+// Display dataset footnotes essay record
+
 DataSetDialog::DataSetDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::DataSetDialog)
 {
     ui->setupUi(this);
+
+    chartWidgetExists = false;
 }
 
 DataSetDialog::~DataSetDialog()
@@ -189,6 +196,13 @@ void DataSetDialog::generateDataView()
     qDebug() << "  Primary unit:" << dataSet.chartLabels()[1];
     qDebug() << "  Total data points:" << dataSet.dataPoints().size();
 
+    // Additive or non-additive data?
+    if (dataSet.additiveDataFlag()) {
+        qDebug() << "  Data is additive (WARNING: NOT CORRECTLY SUPPORTED YET!)";
+    } else {
+        qDebug() << "  Data is not additive";
+    }
+
     // Get the primary variable label
     for (qint32 i = 0; i < dataSet.variableLabels().size(); i++) {
         if (variableSelectionRadioButtons[i]->isChecked()) primaryVariable = i;
@@ -263,7 +277,13 @@ void DataSetDialog::generateDataView()
     }
 
     // Update the overlay GUI -----------------------------------------------------------------------------------------
+    updateTable(primaryVariableTotals);
+    updateChart(primaryVariableTotals);
+}
 
+// Method to update the table view
+void DataSetDialog::updateTable(QVector<qreal> primaryVariableTotals)
+{
     // Disable editing of the table widget
     ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
@@ -292,6 +312,59 @@ void DataSetDialog::generateDataView()
     ui->tableWidget->setItem(finalRow, 0, new QTableWidgetItem("TOTAL"));
     ui->tableWidget->setItem(finalRow, 1, new QTableWidgetItem(QString::number(dataSum, 'f', 2)));
     ui->tableWidget->item(finalRow, 1)->setTextColor(Qt::darkGreen);
+}
+
+// Method to update the chart view
+void DataSetDialog::updateChart(QVector<qreal> primaryVariableTotals)
+{
+    if (chartWidgetExists) {
+        ui->chartView_verticalLayout->removeWidget(chartView);
+        delete barSet;
+        delete barSeries;
+        delete chart;
+        delete axisX;
+        delete axisY;
+        delete chartView;
+        chartWidgetExists = false;
+    }
+
+    // Declare barchart objects
+    barSet = new QBarSet("label");
+    barSeries = new QBarSeries();
+    chart = new QChart();
+    axisX = new QBarCategoryAxis();
+    axisY = new QValueAxis();
+    chartView = new QChartView(chart);
+
+    barSet->setLabel(dataSet.chartLabels()[1]);
+    for (qint32 dp = 0; dp < primaryVariableTotals.size(); dp++) {
+        barSet->append(primaryVariableTotals[dp]);
+    }
+
+    barSeries->append(barSet);
+    chart->addSeries(barSeries);
+    chart->setTitle(dataSet.chartLabels()[0]);
+    chart->setAnimationOptions(QChart::SeriesAnimations);
+
+    QStringList varTitles;
+    for (qint32 vl = 0; vl < dataSet.dimensionLabels()[primaryVariable].size(); vl++) {
+        varTitles.append(dataSet.dimensionLabels()[primaryVariable][vl]);
+    }
+
+    axisX->append(varTitles);
+    chart->addAxis(axisX, Qt::AlignBottom);
+    barSeries->attachAxis(axisX);
+
+    //axisY->setRange(0,15);
+    chart->addAxis(axisY, Qt::AlignLeft);
+    barSeries->attachAxis(axisY);
+
+    chartView->setRenderHint(QPainter::Antialiasing);
+    chart->legend()->setVisible(true);
+    chart->legend()->setAlignment(Qt::AlignBottom);
+
+    ui->chartView_verticalLayout->addWidget(chartView);
+    chartWidgetExists = true;
 }
 
 // Method to handle signal from the chart dimension checkboxes

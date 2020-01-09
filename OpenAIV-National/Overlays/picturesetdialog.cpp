@@ -25,6 +25,11 @@
 #include "picturesetdialog.h"
 #include "ui_picturesetdialog.h"
 
+// TODO: Dialogue content missing when dialogue reopened
+// OSD of title and frame number etc?
+// Save image with metadata as PNG
+// Support better formatting of the 39 character fixed-width text
+
 PictureSetDialog::PictureSetDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::PictureSetDialog)

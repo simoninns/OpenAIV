@@ -32,8 +32,18 @@
 #include <QCheckBox>
 #include <QRadioButton>
 
+// Includes for QtCharts
+#include <QtCharts/QChartView>
+#include <QtCharts/QBarSeries>
+#include <QtCharts/QBarSet>
+#include <QtCharts/QLegend>
+#include <QtCharts/QBarCategoryAxis>
+#include <QtCharts/QValueAxis>
+
 #include "Datatypes/names.h"
 #include "Filetypes/datafile.h"
+
+QT_CHARTS_USE_NAMESPACE
 
 namespace Ui {
 class DataSetDialog;
@@ -67,8 +77,29 @@ private:
     qint32 primaryVariable;
     DataSet dataSet;
 
+    // Supported chart types
+    enum ChartType {
+        CT_BarGraph,        // Simple bar chart
+        CT_BackToBack,      // Back to back bar chart
+        CT_Looping,         // Looping Stacked Bar Chart
+        CT_PieChart,        // Pie chart
+        CT_LineGraph,       // Single line Time Series Line Graph
+        CT_MultiLineGraph   // Multi-line Time Series Line Graph
+    };
+
+    // Globals for charting
+    QBarSet *barSet;
+    QBarSeries *barSeries;
+    QBarCategoryAxis *axisX;
+    QValueAxis *axisY;
+    QChart *chart;
+    QChartView *chartView;
+    bool chartWidgetExists;
+
     void clearDataSet();
     void generateDataView();
+    void updateTable(QVector<qreal> primaryVariableTotals);
+    void updateChart(QVector<qreal> primaryVariableTotals);
 };
 
 #endif // DATASETDIALOG_H

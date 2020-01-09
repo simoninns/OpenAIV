@@ -25,6 +25,13 @@
 #include "essaydialog.h"
 #include "ui_essaydialog.h"
 
+// TODO:
+// Support better formatting of the 39 character fixed-width text
+// Support picture links
+// Support markdown {} and []
+// Auto-fix simple formatting
+// Auto-fix broken ASCII characters
+
 EssayDialog::EssayDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::EssayDialog)
