@@ -50,7 +50,10 @@ MainWindow::MainWindow(QDir _nationalFileLocation, QWidget *parent)
     dataSetDialog->restoreGeometry(configuration.getDataSetDialogGeometry());
 
     nationalModel = new NationalModel(nationalFileLocation);
-    ui->treeView->setModel(nationalModel);
+    hierarchySortFilter = new HierarchySortFilter(this);
+    hierarchySortFilter->setSourceModel(nationalModel);
+    ui->treeView->setModel(hierarchySortFilter);
+
     //ui->treeView->expandAll();
     applicationStatus.setText(tr("Loaded ") + QString::number(nationalModel->totalHierarchyRecords()) +
                               tr(" hierarchy categories containing ") + QString::number(nationalModel->totalNamesRecords()) +
@@ -107,10 +110,11 @@ void MainWindow::on_actionAbout_OpenAIV_triggered()
 // Double-click on hierarchy treeView
 void MainWindow::on_treeView_doubleClicked(const QModelIndex &index)
 {
-    NationalItem* clickedItem = reinterpret_cast<NationalItem *>(index.internalPointer());
+    NationalItem* clickedItem = reinterpret_cast<NationalItem *>(hierarchySortFilter->mapToSource(index).internalPointer());
 
     // Check that the clicked item is a names record
     QString typeName = QString::fromUtf8(clickedItem->data(0).typeName());
+    qDebug() << "typename" << typeName;
     // If the column is a Names object, return the names record label string
     if (typeName == "Names") {
         Names namesRecord = clickedItem->data(0).value<Names>();

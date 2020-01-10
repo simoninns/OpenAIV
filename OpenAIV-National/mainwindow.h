@@ -29,6 +29,7 @@
 #include <QtDebug>
 #include <QLabel>
 #include <QTreeView>
+#include <QStandardItem>
 
 #include "configuration.h"
 #include "aboutdialog.h"
@@ -36,6 +37,7 @@
 #include "Overlays/picturesetdialog.h"
 #include "Overlays/datasetdialog.h"
 #include "nationalmodel.h"
+#include "hierarchysortfilter.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -68,6 +70,7 @@ private:
     QLabel applicationStatus;
     Configuration configuration;
     NationalModel *nationalModel;
+    HierarchySortFilter *hierarchySortFilter;
 
     QDir nationalFileLocation;
 };

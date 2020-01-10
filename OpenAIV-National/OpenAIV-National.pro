@@ -33,6 +33,7 @@ SOURCES += \
     Overlays/essaydialog.cpp \
     aboutdialog.cpp \
     configuration.cpp \
+    hierarchysortfilter.cpp \
     logging.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -53,6 +54,7 @@ HEADERS += \
     Overlays/essaydialog.h \
     aboutdialog.h \
     configuration.h \
+    hierarchysortfilter.h \
     logging.h \
     mainwindow.h \
     nationalitem.h \
