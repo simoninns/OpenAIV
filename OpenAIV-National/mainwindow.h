@@ -46,7 +46,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QString _nationalFileLocation, QWidget *parent = nullptr);
+    MainWindow(QDir _nationalFileLocation, QWidget *parent = nullptr);
     ~MainWindow();
 
 private slots:
@@ -69,6 +69,6 @@ private:
     Configuration configuration;
     NationalModel *nationalModel;
 
-    QString nationalFileLocation;
+    QDir nationalFileLocation;
 };
 #endif // MAINWINDOW_H

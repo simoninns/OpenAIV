@@ -31,6 +31,8 @@
 #include <QVariant>
 #include <QFile>
 #include <QDebug>
+#include <QDir>
+#include <QFileInfo>
 
 #include "nationalitem.h"
 
@@ -46,7 +48,7 @@ class NationalModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
-    explicit NationalModel(QString _nationalFileLocation, QObject *parent = nullptr);
+    explicit NationalModel(const QDir &_nationalFileDirectory, QObject *parent = nullptr);
     ~NationalModel();
 
     QVariant data(const QModelIndex &index, qint32 role) const override;
@@ -70,7 +72,7 @@ private:
     qint32 m_totalHierarchyRecords;
     qint32 m_totalNamesRecords;
 
-    QString nationalFileLocation;
+    QDir nationalFileDirectory;
 };
 
 #endif // NATIONALMODEL_H

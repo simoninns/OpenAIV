@@ -26,6 +26,7 @@
 #define ESSAYDIALOG_H
 
 #include <QDialog>
+#include <QDir>
 
 #include "Datatypes/names.h"
 #include "Filetypes/datafile.h"
@@ -42,7 +43,7 @@ public:
     explicit EssayDialog(QWidget *parent = nullptr);
     ~EssayDialog();
 
-    void showEssay(Names namesRecord, QString nationalFileLocation);
+    void showEssay(Names namesRecord, QDir nationalFileDirectory);
 
 private:
     Ui::EssayDialog *ui;

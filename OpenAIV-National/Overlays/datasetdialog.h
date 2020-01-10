@@ -31,6 +31,7 @@
 #include <QLayout>
 #include <QCheckBox>
 #include <QRadioButton>
+#include <QDir>
 
 // Includes for QtCharts
 #include <QtCharts/QChartView>
@@ -57,7 +58,7 @@ public:
     explicit DataSetDialog(QWidget *parent = nullptr);
     ~DataSetDialog();
 
-    void showDataSet(Names namesRecord, QString nationalFileLocation);
+    void showDataSet(Names namesRecord, QDir nationalFileLocation);
 
 private slots:
     void dimensionCheckBoxChanged(bool state);

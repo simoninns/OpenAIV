@@ -25,7 +25,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-MainWindow::MainWindow(QString _nationalFileLocation, QWidget *parent)
+MainWindow::MainWindow(QDir _nationalFileLocation, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
@@ -126,7 +126,7 @@ void MainWindow::on_treeView_doubleClicked(const QModelIndex &index)
             // Picture set record
             qDebug() << "User clicked on" << namesRecord.itemName() << "with type" << namesRecord.itemTypeDescription() <<
                         "- opening picture set dialogue";
-            pictureSetDialog->showPictureSet(namesRecord, nationalFileLocation);
+            pictureSetDialog->showPictureSet(namesRecord);
             pictureSetDialog->show();
         } else if (namesRecord.itemType() == 4) {
             // Data set record

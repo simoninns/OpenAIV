@@ -30,9 +30,10 @@
 // Save image with metadata as PNG
 // Support better formatting of the 39 character fixed-width text
 
-PictureSetDialog::PictureSetDialog(QString nationalFileLocation, QWidget *parent) :
+PictureSetDialog::PictureSetDialog(QDir _nationalFileDirectory, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::PictureSetDialog)
+    ui(new Ui::PictureSetDialog),
+    nationalFileDirectory(_nationalFileDirectory)
 {
     ui->setupUi(this);
     currentPictureNumber = 0;
@@ -40,7 +41,8 @@ PictureSetDialog::PictureSetDialog(QString nationalFileLocation, QWidget *parent
     // Set up video player
     mediaPlayer = new QMediaPlayer(this);
     mediaPlayer->setAudioRole(QAudio::VideoRole);
-    mediaPlayer->setMedia(QUrl::fromLocalFile(nationalFileLocation + "\\national_ds4.mp4"));
+    QFileInfo videoFileInfo(nationalFileDirectory, "national_ds4.mp4");
+    mediaPlayer->setMedia(QUrl::fromLocalFile(videoFileInfo.path()));
     mediaPlayer->setVideoOutput(ui->videoWidget);
 }
 
@@ -51,7 +53,7 @@ PictureSetDialog::~PictureSetDialog()
 }
 
 // Show a national essay item
-void PictureSetDialog::showPictureSet(Names namesRecord, QString nationalFileLocation)
+void PictureSetDialog::showPictureSet(Names namesRecord)
 {
     if (namesRecord.itemType() != 8) {
         qDebug() << "namesRecord is not a valid picture set!";
@@ -64,8 +66,9 @@ void PictureSetDialog::showPictureSet(Names namesRecord, QString nationalFileLoc
     qDebug() << "  Item address:" << namesRecord.itemAddress();
 
     // Get the picture set from the data file based on the names record's item address
-    DataFile dataFile(nationalFileLocation + "\\DATA1",
-                      nationalFileLocation + "\\DATA2");
+    QFileInfo data1FileInfo(nationalFileDirectory, "DATA1");
+    QFileInfo data2FileInfo(nationalFileDirectory, "DATA2");
+    DataFile dataFile(data1FileInfo.filePath(), data2FileInfo.filePath());
 
     pictureSet = dataFile.readPictureSetRecord(namesRecord.itemAddress());
     qDebug() << "Got" << pictureSet.numberOfPictures() << "pictures from picture set file";

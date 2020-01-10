@@ -45,7 +45,7 @@ EssayDialog::~EssayDialog()
 }
 
 // Show a national essay item
-void EssayDialog::showEssay(Names namesRecord, QString nationalFileLocation)
+void EssayDialog::showEssay(Names namesRecord, QDir nationalFileDirectory)
 {
     if (namesRecord.itemType() != 6 && namesRecord.itemType() != 7) {
         qDebug() << "namesRecord is not a valid essay!";
@@ -58,8 +58,9 @@ void EssayDialog::showEssay(Names namesRecord, QString nationalFileLocation)
     qDebug() << "  Item address:" << namesRecord.itemAddress();
 
     // Get the essay from the data file based on the names record's item address
-    DataFile dataFile(nationalFileLocation + "\\DATA1",
-                      nationalFileLocation + "\\DATA2");
+    QFileInfo data1FileInfo(nationalFileDirectory, "DATA1");
+    QFileInfo data2FileInfo(nationalFileDirectory, "DATA2");
+    DataFile dataFile(data1FileInfo.filePath(), data2FileInfo.filePath());
 
     Essay essay = dataFile.readEssayRecord(namesRecord.itemAddress());
     qDebug() << "Got" << essay.numberOfPages() << "pages from essay file";

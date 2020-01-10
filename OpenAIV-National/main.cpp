@@ -74,9 +74,9 @@ int main(int argc, char *argv[])
     if (isDebugOn) setDebug(true); else setDebug(false);
 
     // Get the National file location
-    QString nationalFileLocation = "/home/sdi/tmp/Indiv_files/National/";
+    QDir nationalFileLocation("/home/sdi/tmp/Indiv_files/National/");
     if (parser.isSet(fileLocation)) {
-        nationalFileLocation = parser.value(fileLocation);
+        nationalFileLocation.setPath(parser.value(fileLocation));
         qDebug() << "National file location set to" << nationalFileLocation;
     }
 

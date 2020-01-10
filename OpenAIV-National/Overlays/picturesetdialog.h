@@ -28,6 +28,7 @@
 #include <QDialog>
 #include <QMediaPlayer>
 #include <QVideoWidget>
+#include <QDir>
 
 #include "Datatypes/names.h"
 #include "Filetypes/datafile.h"
@@ -41,10 +42,10 @@ class PictureSetDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit PictureSetDialog(QString nationalFileLocation, QWidget *parent = nullptr);
+    explicit PictureSetDialog(QDir _nationalFileDirectory, QWidget *parent = nullptr);
     ~PictureSetDialog();
 
-    void showPictureSet(Names namesRecord, QString nationalFileLocation);
+    void showPictureSet(Names namesRecord);
 
 private slots:
     void on_firstPicture_pushButton_clicked();
@@ -56,6 +57,8 @@ private:
     Ui::PictureSetDialog *ui;    
     qint32 currentPictureNumber;
     PictureSet pictureSet;
+
+    QDir nationalFileDirectory;
 
     // Video playback
     QMediaPlayer *mediaPlayer = nullptr;
