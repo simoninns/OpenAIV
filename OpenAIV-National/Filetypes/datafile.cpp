@@ -222,6 +222,11 @@ DataSet DataFile::readDataSetRecord(quint32 itemAddress)
     // Number of bytes per datum in the data area
     qint32 dataSize = uDataChartHeader[30];
 
+    if (dataSize != 1 && dataSize != 2 && dataSize != 4) {
+        qWarning() << "dataSize of chart dataset is" << dataSize << "- it should be 1, 2 or 4 - defaulting to 4";
+        dataSize = 4;
+    }
+
     // Flag indicating if the data is additive/non-additive
     bool additiveDataFlag = uDataChartHeader[31] == 0 ? false : true;
 
@@ -366,7 +371,6 @@ DataSet DataFile::readDataSetRecord(quint32 itemAddress)
         else if (dataSize == 2) dataValue = uChartData[0] + (uChartData[1] << 8); // 16 bit value
         else if (dataSize == 4) dataValue = uChartData[0] + (uChartData[1] << 8) +
                 (uChartData[2] << 16) + (uChartData[3] << 24); // 32 bit value
-        else qFatal("Data value width in chart dataset is invalid - something has gone wrong!");
         currentAddress += dataSize;
 
         // Scale the retrieved value and store

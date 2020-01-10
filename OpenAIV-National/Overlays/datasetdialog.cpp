@@ -337,6 +337,14 @@ void DataSetDialog::updateChart(QVector<qreal> primaryVariableTotals)
     axisY = new QValueAxis();
     chartView = new QChartView(chart);
 
+    // There is a bug in Qt 5.9 under Windows where Qt Chart crashes if the
+    // data set is all zeros due to the min and max of the axis both being
+    // set to 0.0.  This is a work around...
+    qreal chartSum = 0;
+    for (qint32 i = 0; i < primaryVariableTotals.size(); i++) chartSum += primaryVariableTotals[i];
+    if (chartSum == 0) axisY->setRange(0,1);
+    // End of work around
+
     barSet->setLabel(dataSet.chartLabels()[1]);
     for (qint32 dp = 0; dp < primaryVariableTotals.size(); dp++) {
         barSet->append(primaryVariableTotals[dp]);
@@ -356,7 +364,6 @@ void DataSetDialog::updateChart(QVector<qreal> primaryVariableTotals)
     chart->addAxis(axisX, Qt::AlignBottom);
     barSeries->attachAxis(axisX);
 
-    //axisY->setRange(0,15);
     chart->addAxis(axisY, Qt::AlignLeft);
     barSeries->attachAxis(axisY);
 
