@@ -48,7 +48,7 @@ DataSetDialog::~DataSetDialog()
 }
 
 // Show a national data set item
-void DataSetDialog::showDataSet(Names namesRecord)
+void DataSetDialog::showDataSet(Names namesRecord, QString nationalFileLocation)
 {
     if (namesRecord.itemType() != 4) {
         qDebug() << "namesRecord is not a valid data set!";
@@ -64,8 +64,8 @@ void DataSetDialog::showDataSet(Names namesRecord)
     clearDataSet();
 
     // Get the essay from the data file based on the names record's item address
-    DataFile dataFile("/home/sdi/tmp/Indiv_files/National/DATA1",
-                        "/home/sdi/tmp/Indiv_files/National/DATA2");
+    DataFile dataFile(nationalFileLocation + "\\DATA1",
+                        nationalFileLocation + "\\DATA2");
 
     dataSet = dataFile.readDataSetRecord(namesRecord.itemAddress());
     qDebug() << "Got" << dataSet;

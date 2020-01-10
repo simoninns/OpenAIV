@@ -42,7 +42,7 @@ public:
     explicit EssayDialog(QWidget *parent = nullptr);
     ~EssayDialog();
 
-    void showEssay(Names namesRecord);
+    void showEssay(Names namesRecord, QString nationalFileLocation);
 
 private:
     Ui::EssayDialog *ui;

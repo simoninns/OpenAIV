@@ -46,7 +46,7 @@ class NationalModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
-    explicit NationalModel(QObject *parent = nullptr);
+    explicit NationalModel(QString _nationalFileLocation, QObject *parent = nullptr);
     ~NationalModel();
 
     QVariant data(const QModelIndex &index, qint32 role) const override;
@@ -69,6 +69,8 @@ private:
     NationalItem *rootItem;
     qint32 m_totalHierarchyRecords;
     qint32 m_totalNamesRecords;
+
+    QString nationalFileLocation;
 };
 
 #endif // NATIONALMODEL_H

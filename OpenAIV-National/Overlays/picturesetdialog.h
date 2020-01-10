@@ -41,10 +41,10 @@ class PictureSetDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit PictureSetDialog(QWidget *parent = nullptr);
+    explicit PictureSetDialog(QString nationalFileLocation, QWidget *parent = nullptr);
     ~PictureSetDialog();
 
-    void showPictureSet(Names namesRecord);
+    void showPictureSet(Names namesRecord, QString nationalFileLocation);
 
 private slots:
     void on_firstPicture_pushButton_clicked();

@@ -58,6 +58,12 @@ int main(int argc, char *argv[])
                                        QCoreApplication::translate("main", "Show debug"));
     parser.addOption(showDebugOption);
 
+    // Option to set National file location (-n / --nationalfiles)
+    QCommandLineOption fileLocation(QStringList() << "nationalfiles",
+                                       QCoreApplication::translate("main", "Specify the location of the National files"),
+                                       QCoreApplication::translate("main", "folder"));
+    parser.addOption(fileLocation);
+
     // Process the command line options and arguments given by the user
     parser.process(a);
 
@@ -67,8 +73,15 @@ int main(int argc, char *argv[])
     // Process the command line options
     if (isDebugOn) setDebug(true); else setDebug(false);
 
+    // Get the National file location
+    QString nationalFileLocation = "/home/sdi/tmp/Indiv_files/National/";
+    if (parser.isSet(fileLocation)) {
+        nationalFileLocation = parser.value(fileLocation);
+        qDebug() << "National file location set to" << nationalFileLocation;
+    }
+
     // Start the GUI application
-    MainWindow w;
+    MainWindow w(nationalFileLocation);
     w.show();
 
     return a.exec();

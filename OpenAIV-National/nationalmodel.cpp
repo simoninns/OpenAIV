@@ -24,7 +24,7 @@
 
 #include "nationalmodel.h"
 
-NationalModel::NationalModel(QObject *parent)
+NationalModel::NationalModel(QString _nationalFileLocation, QObject *parent)
     : QAbstractItemModel(parent)
 {
     // Reset statistics
@@ -32,6 +32,7 @@ NationalModel::NationalModel(QObject *parent)
     m_totalNamesRecords = 0;
 
     // Load the model
+    nationalFileLocation = _nationalFileLocation;
     rootItem = new NationalItem({tr("Description")});
     setupModelData(rootItem);
 }
@@ -147,13 +148,13 @@ qint32 NationalModel::totalNamesRecords()
 // Set up the data for the model
 void NationalModel::setupModelData(NationalItem *parent)
 {
-    HierarchyFile hierarchyFile("/home/sdi/tmp/Indiv_files/National/HIERARCHY");
+    HierarchyFile hierarchyFile(nationalFileLocation + "\\HIERARCHY");
     if (!hierarchyFile.isFileReady()) {
         qDebug() << "Could not open hierarchy file!";
         return;
     }
 
-    NamesFile namesFile("/home/sdi/tmp/Indiv_files/National/NAMES");
+    NamesFile namesFile(nationalFileLocation + "\\NAMES");
     if (!namesFile.isFileReady()) {
         qDebug() << "Could not open names file!";
         return;

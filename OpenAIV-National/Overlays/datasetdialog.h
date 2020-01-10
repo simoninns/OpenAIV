@@ -57,7 +57,7 @@ public:
     explicit DataSetDialog(QWidget *parent = nullptr);
     ~DataSetDialog();
 
-    void showDataSet(Names namesRecord);
+    void showDataSet(Names namesRecord, QString nationalFileLocation);
 
 private slots:
     void dimensionCheckBoxChanged(bool state);

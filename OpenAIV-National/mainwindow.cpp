@@ -25,16 +25,18 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(QString _nationalFileLocation, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
+    nationalFileLocation = _nationalFileLocation;
+
     // Create dialogues
     aboutDialog = new AboutDialog(this);
     essayDialog = new EssayDialog(this);
-    pictureSetDialog = new PictureSetDialog(this);
+    pictureSetDialog = new PictureSetDialog(nationalFileLocation, this);
     dataSetDialog = new DataSetDialog(this);
 
     // Add a status bar to show the state of the source video file
@@ -47,10 +49,11 @@ MainWindow::MainWindow(QWidget *parent)
     pictureSetDialog->restoreGeometry(configuration.getPictureSetDialogGeometry());
     dataSetDialog->restoreGeometry(configuration.getDataSetDialogGeometry());
 
-    ui->treeView->setModel(&nationalModel);
+    nationalModel = new NationalModel(nationalFileLocation);
+    ui->treeView->setModel(nationalModel);
     //ui->treeView->expandAll();
-    applicationStatus.setText(tr("Loaded ") + QString::number(nationalModel.totalHierarchyRecords()) +
-                              tr(" hierarchy categories containing ") + QString::number(nationalModel.totalNamesRecords()) +
+    applicationStatus.setText(tr("Loaded ") + QString::number(nationalModel->totalHierarchyRecords()) +
+                              tr(" hierarchy categories containing ") + QString::number(nationalModel->totalNamesRecords()) +
                               tr(" named items"));
 }
 
@@ -68,6 +71,9 @@ MainWindow::~MainWindow()
     delete essayDialog;
     delete pictureSetDialog;
     delete dataSetDialog;
+
+    // Remove the models
+    delete nationalModel;
 
     // Remove the UI
     delete ui;
@@ -114,19 +120,19 @@ void MainWindow::on_treeView_doubleClicked(const QModelIndex &index)
             // Essay record
             qDebug() << "User clicked on" << namesRecord.itemName() << "with type" << namesRecord.itemTypeDescription() <<
                         "- opening essay dialogue";
-            essayDialog->showEssay(namesRecord);
+            essayDialog->showEssay(namesRecord, nationalFileLocation);
             essayDialog->show();
         } else if (namesRecord.itemType() == 8) {
             // Picture set record
             qDebug() << "User clicked on" << namesRecord.itemName() << "with type" << namesRecord.itemTypeDescription() <<
                         "- opening picture set dialogue";
-            pictureSetDialog->showPictureSet(namesRecord);
+            pictureSetDialog->showPictureSet(namesRecord, nationalFileLocation);
             pictureSetDialog->show();
         } else if (namesRecord.itemType() == 4) {
             // Data set record
             qDebug() << "User clicked on" << namesRecord.itemName() << "with type" << namesRecord.itemTypeDescription() <<
                         "- opening data set dialogue";
-            dataSetDialog->showDataSet(namesRecord);
+            dataSetDialog->showDataSet(namesRecord, nationalFileLocation);
             dataSetDialog->show();
         } else {
             qDebug() << "Type" << namesRecord.itemTypeDescription() << "is not yet supported by OpenAIV";

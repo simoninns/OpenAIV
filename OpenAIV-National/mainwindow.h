@@ -46,7 +46,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
+    MainWindow(QString _nationalFileLocation, QWidget *parent = nullptr);
     ~MainWindow();
 
 private slots:
@@ -67,6 +67,8 @@ private:
     // Class globals
     QLabel applicationStatus;
     Configuration configuration;
-    NationalModel nationalModel;
+    NationalModel *nationalModel;
+
+    QString nationalFileLocation;
 };
 #endif // MAINWINDOW_H

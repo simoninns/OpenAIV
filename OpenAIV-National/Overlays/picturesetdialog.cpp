@@ -30,7 +30,7 @@
 // Save image with metadata as PNG
 // Support better formatting of the 39 character fixed-width text
 
-PictureSetDialog::PictureSetDialog(QWidget *parent) :
+PictureSetDialog::PictureSetDialog(QString nationalFileLocation, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::PictureSetDialog)
 {
@@ -40,7 +40,7 @@ PictureSetDialog::PictureSetDialog(QWidget *parent) :
     // Set up video player
     mediaPlayer = new QMediaPlayer(this);
     mediaPlayer->setAudioRole(QAudio::VideoRole);
-    mediaPlayer->setMedia(QUrl::fromLocalFile("/home/sdi/tmp/Indiv_files/National/national_ds4.mp4"));
+    mediaPlayer->setMedia(QUrl::fromLocalFile(nationalFileLocation + "\\national_ds4.mp4"));
     mediaPlayer->setVideoOutput(ui->videoWidget);
 }
 
@@ -51,7 +51,7 @@ PictureSetDialog::~PictureSetDialog()
 }
 
 // Show a national essay item
-void PictureSetDialog::showPictureSet(Names namesRecord)
+void PictureSetDialog::showPictureSet(Names namesRecord, QString nationalFileLocation)
 {
     if (namesRecord.itemType() != 8) {
         qDebug() << "namesRecord is not a valid picture set!";
@@ -64,8 +64,8 @@ void PictureSetDialog::showPictureSet(Names namesRecord)
     qDebug() << "  Item address:" << namesRecord.itemAddress();
 
     // Get the picture set from the data file based on the names record's item address
-    DataFile dataFile("/home/sdi/tmp/Indiv_files/National/DATA1",
-                        "/home/sdi/tmp/Indiv_files/National/DATA2");
+    DataFile dataFile(nationalFileLocation + "\\DATA1",
+                      nationalFileLocation + "\\DATA2");
 
     pictureSet = dataFile.readPictureSetRecord(namesRecord.itemAddress());
     qDebug() << "Got" << pictureSet.numberOfPictures() << "pictures from picture set file";
