@@ -42,7 +42,7 @@ PictureSetDialog::PictureSetDialog(QDir _nationalFileDirectory, QWidget *parent)
     mediaPlayer = new QMediaPlayer(this);
     mediaPlayer->setAudioRole(QAudio::VideoRole);
     QFileInfo videoFileInfo(nationalFileDirectory, "national_ds4.mp4");
-    mediaPlayer->setMedia(QUrl::fromLocalFile(videoFileInfo.path()));
+    mediaPlayer->setMedia(QUrl::fromLocalFile(videoFileInfo.filePath()));
     mediaPlayer->setVideoOutput(ui->videoWidget);
 }
 
