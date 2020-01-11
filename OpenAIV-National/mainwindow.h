@@ -56,6 +56,8 @@ private slots:
     void on_actionExit_triggered();
     void on_actionAbout_OpenAIV_triggered();
     void on_treeView_doubleClicked(const QModelIndex &index);
+    void on_clearSearch_pushButton_clicked();
+    void on_search_lineEdit_returnPressed();
 
 private:
     Ui::MainWindow *ui;
@@ -73,5 +75,7 @@ private:
     HierarchySortFilter *hierarchySortFilter;
 
     QDir nationalFileLocation;
+
+    void updateHierarchyView();
 };
 #endif // MAINWINDOW_H

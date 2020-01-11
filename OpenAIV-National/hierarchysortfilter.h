@@ -27,6 +27,7 @@
 
 #include <QObject>
 #include <QSortFilterProxyModel>
+#include <QDebug>
 
 class HierarchySortFilter : public QSortFilterProxyModel
 {
@@ -34,8 +35,16 @@ class HierarchySortFilter : public QSortFilterProxyModel
 public:
     explicit HierarchySortFilter(QObject *parent = nullptr);
 
-protected:
+    void setFilterString(QString filterString);
+    void forceUpdate();
+    qint32 totalHierarchyRecords();
+    qint32 totalNamesRecords();
 
+protected:
+    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
+
+private:
+    QString m_filterString;
 };
 
 #endif // HIERARCHYSORTFILTER_H

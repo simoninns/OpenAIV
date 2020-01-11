@@ -24,9 +24,49 @@
 
 #include "hierarchysortfilter.h"
 
-HierarchySortFilter::HierarchySortFilter(QObject *parent) : QSortFilterProxyModel(parent)
+HierarchySortFilter::HierarchySortFilter(QObject *parent)
+    : QSortFilterProxyModel(parent)
 {
 
 }
 
-// Override stuff here
+// Method to set the filter's string
+void HierarchySortFilter::setFilterString(QString filterString)
+{
+    m_filterString = filterString;
+}
+
+bool HierarchySortFilter::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
+{
+    if(!m_filterString.isEmpty()) {
+        // Get source-model index for current row
+        QModelIndex source_index = sourceModel()->index(source_row, this->filterKeyColumn(), source_parent);
+        if(source_index.isValid()) {
+            // If any of children matches the filter, then current index matches the filter as well
+            qint32 nb = sourceModel()->rowCount(source_index) ;
+            for(qint32 i = 0; i < nb; i++) {
+                if(filterAcceptsRow(i, source_index)) {
+                    return true;
+                }
+            }
+            // Check the current index
+            QString key = sourceModel()->data(source_index, filterRole()).toString().toLower();
+
+            if (key.contains(m_filterString.toLower())) {
+                //qDebug() << "key =" << key << "filter =" << m_filterString << "result = true";
+                return true;
+            }
+            else return false;
+        }
+    }
+
+    // Call original parent method and return result
+    return QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
+}
+
+void HierarchySortFilter::forceUpdate()
+{
+    qDebug() << "Forcing filter update";
+    invalidateFilter();
+}
+

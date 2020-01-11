@@ -54,10 +54,7 @@ MainWindow::MainWindow(QDir _nationalFileLocation, QWidget *parent)
     hierarchySortFilter->setSourceModel(nationalModel);
     ui->treeView->setModel(hierarchySortFilter);
 
-    //ui->treeView->expandAll();
-    applicationStatus.setText(tr("Loaded ") + QString::number(nationalModel->totalHierarchyRecords()) +
-                              tr(" hierarchy categories containing ") + QString::number(nationalModel->totalNamesRecords()) +
-                              tr(" named items"));
+    updateHierarchyView();
 }
 
 MainWindow::~MainWindow()
@@ -80,6 +77,15 @@ MainWindow::~MainWindow()
 
     // Remove the UI
     delete ui;
+}
+
+void MainWindow::updateHierarchyView()
+{
+    hierarchySortFilter->forceUpdate();
+    ui->treeView->expandAll();
+    applicationStatus.setText(tr("Loaded ") + QString::number(nationalModel->totalHierarchyRecords()) +
+                              tr(" hierarchy categories containing ") + QString::number(nationalModel->totalNamesRecords()) +
+                              tr(" named items"));
 }
 
 // Menu bar signal handlers -------------------------------------------------------------------------------------------
@@ -142,4 +148,19 @@ void MainWindow::on_treeView_doubleClicked(const QModelIndex &index)
             qDebug() << "Type" << namesRecord.itemTypeDescription() << "is not yet supported by OpenAIV";
         }
     }
+}
+
+// Hierarchy search clear button clicked
+void MainWindow::on_clearSearch_pushButton_clicked()
+{
+    ui->search_lineEdit->clear();
+    hierarchySortFilter->setFilterString(QString());
+    updateHierarchyView();
+}
+
+// Hierarchy search line editor (return pressed)
+void MainWindow::on_search_lineEdit_returnPressed()
+{
+    hierarchySortFilter->setFilterString(ui->search_lineEdit->text());
+    updateHierarchyView();
 }
