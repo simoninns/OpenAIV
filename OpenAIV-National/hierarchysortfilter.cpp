@@ -27,18 +27,35 @@
 HierarchySortFilter::HierarchySortFilter(QObject *parent)
     : QSortFilterProxyModel(parent)
 {
-
+    m_filterString = "";
+    m_gmap = true;
+    m_amap = true;
+    m_data = true;
+    m_text = true;
+    m_pic = true;
+    m_walk = true;
+    m_film = true;
 }
 
 // Method to set the filter's string
-void HierarchySortFilter::setFilterString(QString filterString)
+void HierarchySortFilter::setFilter(QString filterString,
+                                    bool gmap, bool amap, bool data,
+                                    bool text, bool pic, bool walk, bool film)
 {
     m_filterString = filterString;
+    m_gmap = gmap;
+    m_amap = amap;
+    m_data = data;
+    m_text = text;
+    m_pic = pic;
+    m_walk = walk;
+    m_film = film;
 }
 
 bool HierarchySortFilter::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
 {
-    if(!m_filterString.isEmpty()) {
+    if(!m_filterString.isEmpty() || !(m_gmap && m_amap && m_data & m_text &&
+            m_pic && m_walk && m_film)) {
         // Get source-model index for current row
         QModelIndex source_index = sourceModel()->index(source_row, this->filterKeyColumn(), source_parent);
         if(source_index.isValid()) {
@@ -50,12 +67,17 @@ bool HierarchySortFilter::filterAcceptsRow(int source_row, const QModelIndex &so
                 }
             }
             // Check the current index
+            NationalItem* currentItem = reinterpret_cast<NationalItem *>(source_index.internalPointer());
+            NationalItem::ItemType itemType = currentItem->itemType();
             QString key = sourceModel()->data(source_index, filterRole()).toString().toLower();
 
-            if (key.contains(m_filterString.toLower())) {
-                //qDebug() << "key =" << key << "filter =" << m_filterString << "result = true";
-                return true;
-            }
+            if (key.contains(m_filterString.toLower()) && itemType == NationalItem::ItemType::named_gmap && m_gmap) return true;
+            else if (key.contains(m_filterString.toLower()) && itemType == NationalItem::ItemType::named_amap && m_amap) return true;
+            else if (key.contains(m_filterString.toLower()) && itemType == NationalItem::ItemType::named_data && m_data) return true;
+            else if (key.contains(m_filterString.toLower()) && itemType == NationalItem::ItemType::named_text && m_text) return true;
+            else if (key.contains(m_filterString.toLower()) && itemType == NationalItem::ItemType::named_pic && m_pic) return true;
+            else if (key.contains(m_filterString.toLower()) && itemType == NationalItem::ItemType::named_walk && m_walk) return true;
+            else if (key.contains(m_filterString.toLower()) && itemType == NationalItem::ItemType::named_film && m_film) return true;
             else return false;
         }
     }

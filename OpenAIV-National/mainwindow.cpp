@@ -117,35 +117,33 @@ void MainWindow::on_actionAbout_OpenAIV_triggered()
 void MainWindow::on_treeView_doubleClicked(const QModelIndex &index)
 {
     NationalItem* clickedItem = reinterpret_cast<NationalItem *>(hierarchySortFilter->mapToSource(index).internalPointer());
+    NationalItem::ItemType itemType = clickedItem->itemType();
 
     // Check that the clicked item is a names record
-    QString typeName = QString::fromUtf8(clickedItem->data(0).typeName());
-    qDebug() << "typename" << typeName;
-    // If the column is a Names object, return the names record label string
-    if (typeName == "Names") {
+    if (itemType != NationalItem::ItemType::unknown && itemType != NationalItem::ItemType::hieararchy) {
         Names namesRecord = clickedItem->data(0).value<Names>();
 
         // If the type is currently supported by this application, pop it in a dialogue
-        if (namesRecord.itemType() == 6 || namesRecord.itemType() == 7) {
+        if (itemType == NationalItem::ItemType::named_text) {
             // Essay record
-            qDebug() << "User clicked on" << namesRecord.itemName() << "with type" << namesRecord.itemTypeDescription() <<
+            qDebug() << "User clicked on" << namesRecord.itemName() << "with type" << clickedItem->itemTypeAsString() <<
                         "- opening essay dialogue";
             essayDialog->showEssay(namesRecord, nationalFileLocation);
             essayDialog->show();
-        } else if (namesRecord.itemType() == 8) {
+        } else if (itemType == NationalItem::ItemType::named_pic) {
             // Picture set record
-            qDebug() << "User clicked on" << namesRecord.itemName() << "with type" << namesRecord.itemTypeDescription() <<
+            qDebug() << "User clicked on" << namesRecord.itemName() << "with type" << clickedItem->itemTypeAsString() <<
                         "- opening picture set dialogue";
             pictureSetDialog->showPictureSet(namesRecord);
             pictureSetDialog->show();
-        } else if (namesRecord.itemType() == 4) {
+        } else if (itemType == NationalItem::ItemType::named_data) {
             // Data set record
-            qDebug() << "User clicked on" << namesRecord.itemName() << "with type" << namesRecord.itemTypeDescription() <<
+            qDebug() << "User clicked on" << namesRecord.itemName() << "with type" << clickedItem->itemTypeAsString() <<
                         "- opening data set dialogue";
             dataSetDialog->showDataSet(namesRecord, nationalFileLocation);
             dataSetDialog->show();
         } else {
-            qDebug() << "Type" << namesRecord.itemTypeDescription() << "is not yet supported by OpenAIV";
+            qDebug() << "Type" << clickedItem->itemTypeAsString() << "is not yet supported by OpenAIV";
         }
     }
 }
@@ -154,13 +152,137 @@ void MainWindow::on_treeView_doubleClicked(const QModelIndex &index)
 void MainWindow::on_clearSearch_pushButton_clicked()
 {
     ui->search_lineEdit->clear();
-    hierarchySortFilter->setFilterString(QString());
+    setFilter(QString());
     updateHierarchyView();
 }
 
 // Hierarchy search line editor (return pressed)
 void MainWindow::on_search_lineEdit_returnPressed()
 {
-    hierarchySortFilter->setFilterString(ui->search_lineEdit->text());
+    setFilter(ui->search_lineEdit->text());
     updateHierarchyView();
 }
+
+// Expand all in tree
+void MainWindow::on_tree_expand_pushButton_clicked()
+{
+    ui->treeView->expandAll();
+}
+
+// Collapse all in tree
+void MainWindow::on_tree_collapse_pushButton_clicked()
+{
+    ui->treeView->collapseAll();
+}
+
+void MainWindow::setFilter(QString filterString)
+{
+    // Clear select all if something isn't checked
+    if (!(ui->type_gmap_checkBox->isChecked() &&
+            ui->type_amap_checkBox->isChecked() &&
+            ui->type_data_checkBox->isChecked() &&
+            ui->type_text_checkBox->isChecked() &&
+            ui->type_picture_checkBox->isChecked() &&
+            ui->type_walk_checkBox->isChecked() &&
+            ui->type_film_checkBox->isChecked())) {
+        ui->type_selectall_checkBox->blockSignals(true);
+        ui->type_selectall_checkBox->setChecked(false);
+        ui->type_selectall_checkBox->blockSignals(false);
+    }
+
+    hierarchySortFilter->setFilter(filterString,
+                                   ui->type_gmap_checkBox->isChecked(),
+                                   ui->type_amap_checkBox->isChecked(),
+                                   ui->type_data_checkBox->isChecked(),
+                                   ui->type_text_checkBox->isChecked(),
+                                   ui->type_picture_checkBox->isChecked(),
+                                   ui->type_walk_checkBox->isChecked(),
+                                   ui->type_film_checkBox->isChecked());
+}
+
+// Record type selection checkbox handlers
+void MainWindow::on_type_gmap_checkBox_clicked()
+{
+    setFilter(ui->search_lineEdit->text());
+    updateHierarchyView();
+}
+
+void MainWindow::on_type_amap_checkBox_clicked()
+{
+    setFilter(ui->search_lineEdit->text());
+    updateHierarchyView();
+}
+
+void MainWindow::on_type_data_checkBox_clicked()
+{
+    setFilter(ui->search_lineEdit->text());
+    updateHierarchyView();
+}
+
+void MainWindow::on_type_text_checkBox_clicked()
+{
+    setFilter(ui->search_lineEdit->text());
+    updateHierarchyView();
+}
+
+void MainWindow::on_type_picture_checkBox_clicked()
+{
+    setFilter(ui->search_lineEdit->text());
+    updateHierarchyView();
+}
+
+void MainWindow::on_type_walk_checkBox_clicked()
+{
+    setFilter(ui->search_lineEdit->text());
+    updateHierarchyView();
+}
+
+void MainWindow::on_type_film_checkBox_clicked()
+{
+    setFilter(ui->search_lineEdit->text());
+    updateHierarchyView();
+}
+
+void MainWindow::on_type_selectall_checkBox_clicked()
+{
+    ui->type_gmap_checkBox->blockSignals(true);
+    ui->type_amap_checkBox->blockSignals(true);
+    ui->type_data_checkBox->blockSignals(true);
+    ui->type_text_checkBox->blockSignals(true);
+    ui->type_picture_checkBox->blockSignals(true);
+    ui->type_walk_checkBox->blockSignals(true);
+    ui->type_film_checkBox->blockSignals(true);
+
+    if (ui->type_selectall_checkBox->isChecked()) {
+        // Select all
+        ui->type_gmap_checkBox->setChecked(true);
+        ui->type_amap_checkBox->setChecked(true);
+        ui->type_data_checkBox->setChecked(true);
+        ui->type_text_checkBox->setChecked(true);
+        ui->type_picture_checkBox->setChecked(true);
+        ui->type_walk_checkBox->setChecked(true);
+        ui->type_film_checkBox->setChecked(true);
+    } else {
+        // Select none
+        ui->type_gmap_checkBox->setChecked(false);
+        ui->type_amap_checkBox->setChecked(false);
+        ui->type_data_checkBox->setChecked(false);
+        ui->type_text_checkBox->setChecked(false);
+        ui->type_picture_checkBox->setChecked(false);
+        ui->type_walk_checkBox->setChecked(false);
+        ui->type_film_checkBox->setChecked(false);
+    }
+
+    ui->type_gmap_checkBox->blockSignals(false);
+    ui->type_amap_checkBox->blockSignals(false);
+    ui->type_data_checkBox->blockSignals(false);
+    ui->type_text_checkBox->blockSignals(false);
+    ui->type_picture_checkBox->blockSignals(false);
+    ui->type_walk_checkBox->blockSignals(false);
+    ui->type_film_checkBox->blockSignals(false);
+
+    setFilter(ui->search_lineEdit->text());
+    updateHierarchyView();
+}
+
+

@@ -24,8 +24,9 @@
 
 #include "nationalitem.h"
 
-NationalItem::NationalItem(const QVector<QVariant> &data, NationalItem *parent)
-    : m_itemData(data), m_parentItem(parent)
+NationalItem::NationalItem(const QVector<QVariant> &data, const ItemType &itemType,
+                           NationalItem *parent)
+    : m_itemData(data), m_parentItem(parent), m_itemType(itemType)
 {
 }
 
@@ -74,4 +75,46 @@ qint32 NationalItem::row() const
         return m_parentItem->m_childItems.indexOf(const_cast<NationalItem*>(this));
 
     return 0;
+}
+
+NationalItem::ItemType NationalItem::itemType()
+{
+    return m_itemType;
+}
+
+QString NationalItem::itemTypeAsString()
+{
+    QString type;
+
+    NationalItem::ItemType itemType;
+    switch(m_itemType) {
+    case NationalItem::ItemType::hieararchy:
+        type = "Hierarchy";
+        break;
+    case NationalItem::ItemType::named_gmap:
+        type = "Gmap";
+        break;
+    case NationalItem::ItemType::named_amap:
+        type = "Amap";
+        break;
+    case NationalItem::ItemType::named_data:
+        type = "Data";
+        break;
+    case NationalItem::ItemType::named_text:
+        type = "Text";
+        break;
+    case NationalItem::ItemType::named_pic:
+        type = "Pic.";
+        break;
+    case NationalItem::ItemType::named_walk:
+        type = "Walk";
+        break;
+    case NationalItem::ItemType::named_film:
+        type = "Film";
+        break;
+    default:
+        itemType = NationalItem::ItemType::unknown;
+    }
+
+    return type;
 }

@@ -29,13 +29,17 @@
 #include <QSortFilterProxyModel>
 #include <QDebug>
 
+#include "nationalitem.h"
+
 class HierarchySortFilter : public QSortFilterProxyModel
 {
     Q_OBJECT
 public:
     explicit HierarchySortFilter(QObject *parent = nullptr);
 
-    void setFilterString(QString filterString);
+    void setFilter(QString filterString,
+                   bool gmap, bool amap, bool data,
+                   bool text, bool pic, bool walk, bool film);
     void forceUpdate();
     qint32 totalHierarchyRecords();
     qint32 totalNamesRecords();
@@ -45,6 +49,9 @@ protected:
 
 private:
     QString m_filterString;
+
+    bool m_gmap, m_amap, m_data, m_text, m_pic;
+    bool m_walk, m_film;
 };
 
 #endif // HIERARCHYSORTFILTER_H

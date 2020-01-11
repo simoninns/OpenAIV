@@ -32,7 +32,7 @@ NationalModel::NationalModel(const QDir &_nationalFileDirectory, QObject *parent
     m_totalNamesRecords = 0;
 
     // Load the model
-    rootItem = new NationalItem({tr("Description")});
+    rootItem = new NationalItem({tr("Description")}, NationalItem::ItemType::unknown);
     setupModelData(rootItem);
 }
 
@@ -177,7 +177,7 @@ void NationalModel::recurseModelData(NationalItem *parent, qint32 fileIndex,
 
     // Append a child item based on the hierarchy record   
     //qDebug() << "Appending" << newHierarchyRecord;
-    NationalItem* child = new NationalItem(columnData, parent);
+    NationalItem* child = new NationalItem(columnData, NationalItem::ItemType::hieararchy, parent);
     parent->appendChild(child);
     m_totalHierarchyRecords++;
 
@@ -196,7 +196,36 @@ void NationalModel::recurseModelData(NationalItem *parent, qint32 fileIndex,
             namesColumnData.resize(1);
             namesColumnData[0].setValue(newNamesRecord);
             //qDebug() << "Appending" << newNamesRecord;
-            NationalItem* namesChild = new NationalItem(namesColumnData, child);
+
+            NationalItem::ItemType itemType;
+            switch(newNamesRecord.itemType()) {
+            case 1:
+                itemType = NationalItem::ItemType::named_gmap;
+                break;
+            case 3:
+                itemType = NationalItem::ItemType::named_amap;
+                break;
+            case 4:
+                itemType = NationalItem::ItemType::named_data;
+                break;
+            case 6:
+            case 7:
+                itemType = NationalItem::ItemType::named_text;
+                break;
+            case 8:
+                itemType = NationalItem::ItemType::named_pic;
+                break;
+            case 9:
+                itemType = NationalItem::ItemType::named_walk;
+                break;
+            case 10:
+                itemType = NationalItem::ItemType::named_film;
+                break;
+            default:
+                itemType = NationalItem::ItemType::unknown;
+            }
+
+            NationalItem* namesChild = new NationalItem(namesColumnData, itemType, child);
             child->appendChild(namesChild);
             m_totalNamesRecords++;
         }

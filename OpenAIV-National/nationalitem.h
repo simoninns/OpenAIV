@@ -32,7 +32,20 @@
 class NationalItem
 {
 public:
-    explicit NationalItem(const QVector<QVariant> &data, NationalItem *parent = nullptr);
+    enum ItemType {
+        hieararchy,
+        named_gmap,
+        named_amap,
+        named_data,
+        named_plan,
+        named_text,
+        named_pic,
+        named_walk,
+        named_film,
+        unknown
+    };
+
+    explicit NationalItem(const QVector<QVariant> &data, const ItemType &itemType, NationalItem *parent = nullptr);
     ~NationalItem();
 
     void appendChild(NationalItem *child);
@@ -43,11 +56,15 @@ public:
     QVariant data(qint32 column) const;
     qint32 row() const;
     NationalItem *parentItem();
+    ItemType itemType();
+    QString itemTypeAsString();
 
 private:
     QVector<NationalItem*> m_childItems;
     QVector<QVariant> m_itemData;
     NationalItem *m_parentItem;
+
+    ItemType m_itemType;
 };
 
 #endif // NATIONALITEM_H

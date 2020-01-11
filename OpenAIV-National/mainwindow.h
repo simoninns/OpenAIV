@@ -56,8 +56,22 @@ private slots:
     void on_actionExit_triggered();
     void on_actionAbout_OpenAIV_triggered();
     void on_treeView_doubleClicked(const QModelIndex &index);
+
     void on_clearSearch_pushButton_clicked();
     void on_search_lineEdit_returnPressed();
+
+    void on_type_gmap_checkBox_clicked();
+    void on_type_amap_checkBox_clicked();
+    void on_type_data_checkBox_clicked();
+    void on_type_text_checkBox_clicked();
+    void on_type_picture_checkBox_clicked();
+    void on_type_walk_checkBox_clicked();
+    void on_type_film_checkBox_clicked();
+    void on_type_selectall_checkBox_clicked();
+
+    void on_tree_expand_pushButton_clicked();
+
+    void on_tree_collapse_pushButton_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -77,5 +91,6 @@ private:
     QDir nationalFileLocation;
 
     void updateHierarchyView();
+    void setFilter(QString filterString);
 };
 #endif // MAINWINDOW_H
