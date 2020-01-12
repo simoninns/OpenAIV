@@ -62,39 +62,80 @@ void EssayDialog::showEssay(Names namesRecord, QDir nationalFileDirectory)
     QFileInfo data2FileInfo(nationalFileDirectory, "DATA2");
     DataFile dataFile(data1FileInfo.filePath(), data2FileInfo.filePath());
 
-    Essay essay = dataFile.readEssayRecord(namesRecord.itemAddress());
-    qDebug() << "Got" << essay.numberOfPages() << "pages from essay file";
+    currentEssay = dataFile.readEssayRecord(namesRecord.itemAddress());
+    qDebug() << "Got" << currentEssay.numberOfPages() << "pages from essay file";
 
-    ui->textBrowser->clear();
-    ui->textBrowser->setLineWrapMode(QTextEdit::NoWrap);
-    ui->textBrowser->setText(formatEssay(essay));
+    displayEssay();
 }
 
-// Format essay text for display
-QString EssayDialog::formatEssay(Essay essay)
+// Format essay text and display
+void EssayDialog::displayEssay()
 {
-    QString browserText;
+    // This is way too slow at the moment... needs some improvement
+    QTextCharFormat normalText;
+    QTextCharFormat headlineText;
+    QTextCharFormat linkText;
 
-    // Concatenate essay pages
-    for (qint32 page = 0; page < essay.numberOfPages(); page++) {
-        browserText = browserText + essay.pages()[page];
+    normalText.setFontWeight(QFont::Normal);
+    headlineText.setFontWeight(QFont::Bold);
+    linkText.setFontWeight(QFont::Normal);
+
+    normalText.setForeground(Qt::darkBlue);
+    headlineText.setForeground(Qt::darkYellow);
+    linkText.setForeground(Qt::darkGreen);
+
+    // Get the textEdit widget ready
+    ui->textBrowser->setTextColor(Qt::darkBlue);
+    ui->textBrowser->clear();
+
+    // Process the essay one page at a time
+    QTextCursor cursor = ui->textBrowser->textCursor();
+    for (qint32 page = 0; page < currentEssay.numberOfPages(); page++) {
+        // Output the text 39 characters at a time
+        qint32 lineCounter = 0;
+        for (qint32 c = 0; c < currentEssay.pages()[page].size(); c++) {
+            QString currentChar = currentEssay.pages()[page].mid(c, 1);
+
+            // Perform mark up
+            bool ignoreChar = false;
+            if (ui->markUp_checkBox->isChecked()) {
+                if (currentChar == "{") {
+                    cursor.setCharFormat(headlineText);
+                    ignoreChar = true;
+                }
+                if (currentChar == "}") {
+                    cursor.setCharFormat(normalText);
+                    ignoreChar = true;
+                }
+                if (currentChar == "[") cursor.setCharFormat(linkText);
+                if (currentChar == "]") cursor.setCharFormat(normalText);
+            }
+
+            if (!ignoreChar) cursor.insertText(currentChar);
+
+            lineCounter++;
+            if (lineCounter == 39 && ui->fixedWidth_checkBox->isChecked()) {
+                cursor.insertText("\n");
+                lineCounter = 0;
+            }
+        }
+        // End of current page
     }
+    // End of current essay
 
-    // Format text with a fixed 39 characters per line
-    for (qint32 i = 39; i <= browserText.size(); i += (39 + 1))
-        browserText.insert(i, '\n');
-
-    return browserText;
+    // Set the current position to the top of the essay
+    cursor.setPosition(0);
+    ui->textBrowser->setTextCursor(cursor);
 }
 
 // Fixed width text checkbox clicked
 void EssayDialog::on_fixedWidth_checkBox_clicked()
 {
-
+    displayEssay();
 }
 
 // Mark up checkbox clicked
 void EssayDialog::on_markUp_checkBox_clicked()
 {
-
+    displayEssay();
 }

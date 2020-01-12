@@ -86,7 +86,6 @@ QString NationalItem::itemTypeAsString()
 {
     QString type;
 
-    NationalItem::ItemType itemType;
     switch(m_itemType) {
     case NationalItem::ItemType::hieararchy:
         type = "Hierarchy";
@@ -113,7 +112,7 @@ QString NationalItem::itemTypeAsString()
         type = "Film";
         break;
     default:
-        itemType = NationalItem::ItemType::unknown;
+        type = "Unknown";
     }
 
     return type;
