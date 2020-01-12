@@ -45,6 +45,11 @@ public:
 
     void showEssay(Names namesRecord, QDir nationalFileDirectory);
 
+private slots:
+    void on_fixedWidth_checkBox_clicked();
+
+    void on_markUp_checkBox_clicked();
+
 private:
     Ui::EssayDialog *ui;
 

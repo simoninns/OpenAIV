@@ -86,3 +86,15 @@ QString EssayDialog::formatEssay(Essay essay)
 
     return browserText;
 }
+
+// Fixed width text checkbox clicked
+void EssayDialog::on_fixedWidth_checkBox_clicked()
+{
+
+}
+
+// Mark up checkbox clicked
+void EssayDialog::on_markUp_checkBox_clicked()
+{
+
+}
