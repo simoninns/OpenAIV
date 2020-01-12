@@ -71,7 +71,10 @@ void EssayDialog::showEssay(Names namesRecord, QDir nationalFileDirectory)
 // Format essay text and display
 void EssayDialog::displayEssay()
 {
-    // This is way too slow at the moment... needs some improvement
+    // If you set this to display without line endings, it takes
+    // a very long time... need to fix it somehow
+
+    qDebug() << "Formatting and displaying essay text";
     QTextCharFormat normalText;
     QTextCharFormat headlineText;
     QTextCharFormat linkText;
@@ -89,7 +92,11 @@ void EssayDialog::displayEssay()
     ui->textBrowser->clear();
 
     // Process the essay one page at a time
+    ui->textBrowser->setUpdatesEnabled(false);
+    bool performMarkUp = ui->markUp_checkBox->isChecked();
+    bool insertLineEndings = ui->fixedWidth_checkBox->isChecked();
     QTextCursor cursor = ui->textBrowser->textCursor();
+
     for (qint32 page = 0; page < currentEssay.numberOfPages(); page++) {
         // Output the text 39 characters at a time
         qint32 lineCounter = 0;
@@ -98,7 +105,7 @@ void EssayDialog::displayEssay()
 
             // Perform mark up
             bool ignoreChar = false;
-            if (ui->markUp_checkBox->isChecked()) {
+            if (performMarkUp) {
                 if (currentChar == "{") {
                     cursor.setCharFormat(headlineText);
                     ignoreChar = true;
@@ -114,18 +121,18 @@ void EssayDialog::displayEssay()
             if (!ignoreChar) cursor.insertText(currentChar);
 
             lineCounter++;
-            if (lineCounter == 39 && ui->fixedWidth_checkBox->isChecked()) {
+            if (lineCounter == 39 && insertLineEndings) {
                 cursor.insertText("\n");
                 lineCounter = 0;
             }
         }
         // End of current page
     }
-    // End of current essay
 
-    // Set the current position to the top of the essay
+    // End of current essay
     cursor.setPosition(0);
     ui->textBrowser->setTextCursor(cursor);
+    ui->textBrowser->setUpdatesEnabled(true);
 }
 
 // Fixed width text checkbox clicked
