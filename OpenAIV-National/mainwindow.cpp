@@ -38,6 +38,7 @@ MainWindow::MainWindow(QDir _nationalFileLocation, QWidget *parent)
     essayDialog = new EssayDialog(this);
     pictureSetDialog = new PictureSetDialog(nationalFileLocation, this);
     dataSetDialog = new DataSetDialog(this);
+    walkDialog = new WalkDialog(this);
 
     // Add a status bar to show the state of the source video file
     ui->statusbar->addWidget(&applicationStatus);
@@ -48,6 +49,7 @@ MainWindow::MainWindow(QDir _nationalFileLocation, QWidget *parent)
     essayDialog->restoreGeometry(configuration.getEssayDialogGeometry());
     pictureSetDialog->restoreGeometry(configuration.getPictureSetDialogGeometry());
     dataSetDialog->restoreGeometry(configuration.getDataSetDialogGeometry());
+    walkDialog->restoreGeometry(configuration.getWalkDialogGeometry());
 
     nationalModel = new NationalModel(nationalFileLocation);
     hierarchySortFilter = new HierarchySortFilter(this);
@@ -64,6 +66,7 @@ MainWindow::~MainWindow()
     configuration.setEssayDialogGeometry(essayDialog->saveGeometry());
     configuration.setPictureSetDialogGeometry(pictureSetDialog->saveGeometry());
     configuration.setDataSetDialogGeometry(dataSetDialog->saveGeometry());
+    configuration.setWalkDialogGeometry(walkDialog->saveGeometry());
     configuration.writeConfiguration();
 
     // Remove dialogues
@@ -142,6 +145,12 @@ void MainWindow::on_treeView_doubleClicked(const QModelIndex &index)
                         "- opening data set dialogue";
             dataSetDialog->showDataSet(namesRecord, nationalFileLocation);
             dataSetDialog->show();
+        } else if (itemType == NationalItem::ItemType::named_walk) {
+            // Data set record
+            qDebug() << "User clicked on" << namesRecord.itemName() << "with type" << clickedItem->itemTypeAsString() <<
+                        "- opening walk dialogue";
+            walkDialog->showWalk(namesRecord, nationalFileLocation);
+            walkDialog->show();
         } else {
             qDebug() << "Type" << clickedItem->itemTypeAsString() << "is not yet supported by OpenAIV";
         }

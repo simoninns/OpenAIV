@@ -34,6 +34,7 @@
 #include "Datatypes/essay.h"
 #include "Datatypes/pictureset.h"
 #include "Datatypes/dataset.h"
+#include "Datatypes/walk.h"
 
 class DataFile
 {
@@ -45,6 +46,7 @@ public:
     Essay readEssayRecord(quint32 itemAddress);
     PictureSet readPictureSetRecord(quint32 itemAddress);
     DataSet readDataSetRecord(quint32 itemAddress);
+    Walk readWalkRecord(quint32 itemAddress);
 
 private:
     QFile fileHandle1;

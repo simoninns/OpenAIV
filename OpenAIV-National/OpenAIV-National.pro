@@ -25,12 +25,14 @@ SOURCES += \
     Datatypes/hierarchy.cpp \
     Datatypes/names.cpp \
     Datatypes/pictureset.cpp \
+    Datatypes/walk.cpp \
     Filetypes/datafile.cpp \
     Filetypes/hierarchyfile.cpp \
     Filetypes/namesfile.cpp \
     Overlays/datasetdialog.cpp \
     Overlays/picturesetdialog.cpp \
     Overlays/essaydialog.cpp \
+    Overlays/walkdialog.cpp \
     aboutdialog.cpp \
     configuration.cpp \
     hierarchysortfilter.cpp \
@@ -46,12 +48,14 @@ HEADERS += \
     Datatypes/hierarchy.h \
     Datatypes/names.h \
     Datatypes/pictureset.h \
+    Datatypes/walk.h \
     Filetypes/datafile.h \
     Filetypes/hierarchyfile.h \
     Filetypes/namesfile.h \
     Overlays/datasetdialog.h \
     Overlays/picturesetdialog.h \
     Overlays/essaydialog.h \
+    Overlays/walkdialog.h \
     aboutdialog.h \
     configuration.h \
     hierarchysortfilter.h \
@@ -64,6 +68,7 @@ FORMS += \
     Overlays/datasetdialog.ui \
     Overlays/essaydialog.ui \
     Overlays/picturesetdialog.ui \
+    Overlays/walkdialog.ui \
     aboutdialog.ui \
     mainwindow.ui
 

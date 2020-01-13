@@ -72,6 +72,7 @@ void Configuration::writeConfiguration(void)
     configuration->setValue("essayDialogGeometry", settings.windows.essayDialogGeometry);
     configuration->setValue("pictureSetDialogGeometry", settings.windows.pictureSetDialogGeometry);
     configuration->setValue("dataSetDialogGeometry", settings.windows.dataSetDialogGeometry);
+    configuration->setValue("walkDialogGeometry", settings.windows.walkDialogGeometry);
     configuration->endGroup();
 
     // Sync the settings with disk
@@ -98,6 +99,7 @@ void Configuration::readConfiguration(void)
     settings.windows.essayDialogGeometry = configuration->value("essayDialogGeometry").toByteArray();
     settings.windows.pictureSetDialogGeometry = configuration->value("pictureSetDialogGeometry").toByteArray();
     settings.windows.dataSetDialogGeometry = configuration->value("dataSetDialogGeometry").toByteArray();
+    settings.windows.walkDialogGeometry = configuration->value("walkDialogGeometry").toByteArray();
     configuration->endGroup();
 }
 
@@ -115,6 +117,7 @@ void Configuration::setDefault(void)
     settings.windows.essayDialogGeometry = QByteArray();
     settings.windows.pictureSetDialogGeometry = QByteArray();
     settings.windows.dataSetDialogGeometry = QByteArray();
+    settings.windows.walkDialogGeometry = QByteArray();
 
     // Write the configuration
     writeConfiguration();
@@ -182,4 +185,14 @@ void Configuration::setDataSetDialogGeometry(QByteArray dataSetDialogGeometry)
 QByteArray Configuration::getDataSetDialogGeometry(void)
 {
     return settings.windows.dataSetDialogGeometry;
+}
+
+void Configuration::setWalkDialogGeometry(QByteArray walkDialogGeometry)
+{
+    settings.windows.walkDialogGeometry = walkDialogGeometry;
+}
+
+QByteArray Configuration::getWalkDialogGeometry(void)
+{
+    return settings.windows.walkDialogGeometry;
 }

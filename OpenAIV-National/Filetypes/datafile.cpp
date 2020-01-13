@@ -383,6 +383,86 @@ DataSet DataFile::readDataSetRecord(quint32 itemAddress)
                    defaultDisplayMethod, colourSet);
 }
 
+// Read a walk record and store it in the Walk datatype
+Walk DataFile::readWalkRecord(quint32 itemAddress)
+{
+    if (!fileReady) return Walk();
+    qint32 targetFile = selectTargetDataFile(itemAddress);
+    quint32 currentAddress = itemAddress;
+
+    // Define a buffer for reading data from the input file
+    QByteArray buffer;
+    buffer.resize(100);
+
+    // Read header (30 words - 60 bytes)
+    buffer = readFile(currentAddress, 60, targetFile);
+    currentAddress += 60;
+    uchar *uBuffer0 = reinterpret_cast<uchar*>(buffer.data());
+
+    // Get the table data (start from 28 due to the dataset header)
+    quint16 ltable = uBuffer0[28] + (uBuffer0[29] << 8) + (uBuffer0[30] << 16) + (uBuffer0[31] << 24);
+    quint16 ctable = uBuffer0[32] + (uBuffer0[33] << 8) + (uBuffer0[34] << 16) + (uBuffer0[35] << 24);
+    quint16 ptable = uBuffer0[36] + (uBuffer0[37] << 8) + (uBuffer0[38] << 16) + (uBuffer0[39] << 24);
+    quint16 dtable = uBuffer0[40] + (uBuffer0[41] << 8) + (uBuffer0[42] << 16) + (uBuffer0[43] << 24);
+
+    // 44-47 unused
+    // 48-49 unused
+
+    quint16 dtablesize = uBuffer0[50] + (uBuffer0[51] << 8) + (uBuffer0[52] << 16) + (uBuffer0[53] << 24);
+
+    quint16 baseview = uBuffer0[54] + (uBuffer0[55] << 8) - 1;
+    quint16 baseplan = uBuffer0[56] + (uBuffer0[57] << 8);
+    quint16 syslev = uBuffer0[58] + (uBuffer0[59] << 8);
+
+    // Calculate remaining length
+    // dtable is the last item + the length of the dtable - the 60 bytes we already read
+    quint32 dataRemaining = dtable + dtablesize - 60;
+
+    // Show the table data debug
+    qDebug() << "Table data:";
+    qDebug() << "  dataRemaining =" << dataRemaining << "bytes" << "- total size" << dataRemaining + 60 << "bytes";
+
+    qDebug() << "  ltable =" << ltable << "bytes (link table)";
+    qDebug() << "  ctable =" << ctable << "bytes (control table)";
+    qDebug() << "  ptable =" << ptable << "bytes (plan table)";
+    qDebug() << "  dtable =" << dtable << "bytes (detail table)";
+
+    qDebug() << "  dtablesize =" << dtablesize << " bytes (detail table size)";
+
+    qDebug() << "  baseview =" << baseview << "- initial frame is" << baseview;
+    qDebug() << "  baseplan =" << baseplan << "- initial plan is" << baseview + baseplan;
+
+    qDebug() << "  syslev =" << syslev;
+    if (syslev == 1) qDebug() << "syslev = Gallery type structure";
+    else qDebug() << "syslev = Normal structure";
+
+    // Read the link table
+    qint32 linkTableLength = ctable - ltable;
+    qDebug() << "Reading" << linkTableLength << "bytes of the link table";
+    QByteArray linkTable = readFile(currentAddress, linkTableLength, targetFile);
+    currentAddress += linkTableLength;
+
+    // Read the control table
+    qint32 controlTableLength = ptable - ltable;
+    qDebug() << "Reading" << controlTableLength << "bytes of the control table";
+    QByteArray controlTable = readFile(currentAddress, controlTableLength, targetFile);
+    currentAddress += controlTableLength;
+
+    // Read the plan table
+    qint32 planTableLength = dtable - ptable;
+    qDebug() << "Reading" << planTableLength << "bytes of the plan table";
+    QByteArray planTable = readFile(currentAddress, planTableLength, targetFile);
+    currentAddress += planTableLength;
+
+    // Read the detail table
+    qDebug() << "Reading" << dtablesize << "bytes of the detail table";
+    QByteArray detailTable = readFile(currentAddress, dtablesize, targetFile);
+    currentAddress += dtablesize;
+
+    return Walk(baseview, baseplan, syslev, linkTable,
+                controlTable, planTable, detailTable);
+}
+
 // Private methods ----------------------------------------------------------------------------------------------------
 
 // Method to scale a chart value according to the scaling flags
@@ -436,6 +516,8 @@ QByteArray DataFile::readFile(quint32 filePointer, qint32 dataSize, qint32 fileN
 {
     QByteArray response;
     response.resize(dataSize);
+
+    if (dataSize <= 0) return response;
 
     if (fileNumber == 1) { // DATA1
         // Verify that request is in bounds

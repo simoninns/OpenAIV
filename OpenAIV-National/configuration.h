@@ -58,6 +58,8 @@ public:
     QByteArray getPictureSetDialogGeometry(void);
     void setDataSetDialogGeometry(QByteArray dataSetDialogGeometry);
     QByteArray getDataSetDialogGeometry(void);
+    void setWalkDialogGeometry(QByteArray walkDialogGeometry);
+    QByteArray getWalkDialogGeometry(void);
 
 signals:
 
@@ -78,6 +80,7 @@ private:
         QByteArray essayDialogGeometry;
         QByteArray pictureSetDialogGeometry;
         QByteArray dataSetDialogGeometry;
+        QByteArray walkDialogGeometry;
     };
 
     // Overall settings structure

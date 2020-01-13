@@ -36,6 +36,7 @@
 #include "Overlays/essaydialog.h"
 #include "Overlays/picturesetdialog.h"
 #include "Overlays/datasetdialog.h"
+#include "Overlays/walkdialog.h"
 #include "nationalmodel.h"
 #include "hierarchysortfilter.h"
 
@@ -66,11 +67,10 @@ private slots:
     void on_type_text_checkBox_clicked();
     void on_type_picture_checkBox_clicked();
     void on_type_walk_checkBox_clicked();
-    void on_type_film_checkBox_clicked();
+    void on_type_film_checkBox_clicked();    
     void on_type_selectall_checkBox_clicked();
 
     void on_tree_expand_pushButton_clicked();
-
     void on_tree_collapse_pushButton_clicked();
 
 private:
@@ -81,6 +81,7 @@ private:
     EssayDialog* essayDialog;
     PictureSetDialog* pictureSetDialog;
     DataSetDialog* dataSetDialog;
+    WalkDialog* walkDialog;
 
     // Class globals
     QLabel applicationStatus;
