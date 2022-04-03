@@ -2,8 +2,8 @@
 
     walk.cpp
 
-    OpenAIV - Domesday Retrieval application
-    Copyright (C) 2020 Simon Inns
+    OpenAIV-National - Domesday Retrieval application
+    Copyright (C) 2020-2022 Simon Inns
 
     This file is part of OpenAIV.
 
@@ -23,8 +23,6 @@
 ************************************************************************/
 
 #include "walk.h"
-
-
 
 Walk::Walk(const quint32 &baseview, const quint32 &baseplan, const quint32 &syslev,
            const QByteArray &linkTable, const QByteArray &controlTable,

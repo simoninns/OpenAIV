@@ -2,8 +2,8 @@
 
     main.cpp
 
-    OpenAIV - Domesday Retrieval application
-    Copyright (C) 2020 Simon Inns
+    OpenAIV-National - Domesday Retrieval application
+    Copyright (C) 2020-2022 Simon Inns
 
     This file is part of OpenAIV.
 
@@ -39,16 +39,16 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
 
     // Set application name and version
-    QCoreApplication::setApplicationName("OpenAIV");
+    QCoreApplication::setApplicationName("OpenAIV-National");
     QCoreApplication::setApplicationVersion("1.0");
     QCoreApplication::setOrganizationDomain("domesday86.com");
 
     // Set up the command line parser
     QCommandLineParser parser;
     parser.setApplicationDescription(
-                "OpenAIV - Domesday Retrieval application\n"
+                "OpenAIV-National - Domesday Retrieval application\n"
                 "\n"
-                "(c)2020 Simon Inns\n"
+                "(c)2020-2022 Simon Inns\n"
                 "GPLv3 Open-Source - github: https://github.com/simoninns");
     parser.addHelpOption();
     parser.addVersionOption();

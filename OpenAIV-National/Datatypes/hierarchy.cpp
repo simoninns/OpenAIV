@@ -2,8 +2,8 @@
 
     hierarchy.cpp
 
-    OpenAIV - Domesday Retrieval application
-    Copyright (C) 2020 Simon Inns
+    OpenAIV-National - Domesday Retrieval application
+    Copyright (C) 2020-2022 Simon Inns
 
     This file is part of OpenAIV.
 
